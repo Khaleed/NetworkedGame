@@ -21,7 +21,7 @@ var TicTacToe = function() { // current function constructor
 };
 
 TicTacToe.prototype = { // gives instances of TicTacToe the below methods and values
-    boardElem: null, 
+    boardElem: null,
     resultElem: null,
     startElem: null,
     statusElem: null,
@@ -47,29 +47,32 @@ TicTacToe.prototype = { // gives instances of TicTacToe the below methods and va
         }.bind(this);
     },
 
-    getSquareValues: function(square) {
-        var squareValue = document.getElementById(square); // coming from events in init function
-        if (squareValue.value !== "") { // if there is X or O 
-            return;
-        }
-        if (squareValue === "" && this.gameOver !== true) { // stops a square being selected more than once
+    getStatus: function() {
+        return this.statusElem.innerHTML = "It is the turn of " + (this.xTurn ? "X" : "O");
+    },
+
+    increment: function() {
+        return this.moves += 1;
+    },
+
+    getSquareValues: function(id) {
+        var squareElem = document.getElementById(id);
+        if (squareElem.value === "" && this.gameOver !== true) { // stops a square being selected more than once
             if (this.xTurn) {
-                this.moves += 1;
-                squareValue.value = "X"; 
-                this.xTurn = false; 
-                this.statusElem.innerHTML = "It is the turn of O";
+                this.increment();
+                squareElem.value = "X";
+                this.xTurn = false;
+                this.getStatus();
             } else {
-                this.moves += 1;
-                squareValue.value = "O"; 
-                this.xTurn = true; 
-                this.statusElem.innerHTML = "It is the turn of X";
+                this.increment();
+                squareElem.value = "O";
+                this.xTurn = true;
+                this.getStatus();
             }
         } else {
-            return;  
+            return;
         }
-        if (this.moves === 9) { 
-            this.gameOver = true;
-        }
+        this.moves === 9 ? this.gameOver = true : this.gameOver = false;
         this.checkForWinner();
     },
 

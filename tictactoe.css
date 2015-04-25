@@ -1,135 +1,57 @@
 html, body {
-
     height: 100%;
-
     margin: 0;
-
 }
 
 body {
-
-    font: bold 2em "Open Sans",sans;
-
+    font: bold 2em "Open Sans", sans;
     text-align: center;
-
     text-shadow: 1px 1px gray;
-
 }
 
 body {
-
-    display: flex;                     
-
+    display: flex;
     align-items: center;
-
     flex-flow: column nowrap;
-
     justify-content: center;
-
 }
 
 #game-board {
-
     text-align: center;
+}
 
-}   
-
-.row {                              
-
+.row {
     display: flex;
-
     flex-flow: row nowrap;
 }
 
-.row > div {
-
+.row > table {
     height: 100px;
-
-    /*line-height: 100px;*/
-
+    line-height: 100px;
     width: 100px;
 }
 
-.row:nth-child(1) > div {              
-
-    border-bottom: 1px solid black;
-}
-
-.row:nth-child(2) > div {
-
-    border-bottom: 1px solid black;
-
-    border-top: 1px solid black;
-}
-
-.row:nth-child(3) > div {
-
-    border-top: 1px solid black;
-}
-
-.row > div:nth-child(1) {
-
-    border-right: 1px solid black;
-}
-
-.row > div:nth-child(2) {
-
-    border-left: 1px solid black;
-
-    border-right: 1px solid black;
-}
-
-.row > div:nth-child(3) {
-
-    border-left: 1px solid black;
-}
-
 input {
-
     width: 102px;
-
     height: 102px;
-
     border: none;
-
     font: 20em;
 }
 
-input[type="button"]:disabled{
-
-    width: 105px;
-
-    height: 105px;
-}
-
-.new-game-wrapper {
-
-    text-align: right;
-}
-
 #start-game {
-
     font-size: 0.5em;
-
     margin-top: 20px;
-
-    color: #8c92ac; 
+    color: #8c92ac;
 }
 
 #results {
-
     font-size: 0.5em;
-
     color: #5260FF;
-
-    text-align: center; 
+    text-align: center;
 }
 
 #status {
-
     font-size: 0.5em;
-
     color: #5260FF;
-
     text-align: center;
 }

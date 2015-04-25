@@ -16,13 +16,12 @@ if (!Function.prototype.bind) { // credit to Crockford for this bind function
     };
 }
 
-var TicTacToe = function() { //current function constructor
+var TicTacToe = function() { // current function constructor
     this.init();
 };
 
-TicTacToe.prototype = { //gives instances of TicTacToe the below methods and values
-    // every object linked to the prototype object which they inherit properties from
-    boardElem: null, // empty elements by setting them to null 
+TicTacToe.prototype = { // gives instances of TicTacToe the below methods and values
+    boardElem: null, 
     resultElem: null,
     startElem: null,
     statusElem: null,
@@ -43,7 +42,7 @@ TicTacToe.prototype = { //gives instances of TicTacToe the below methods and val
         this.boardElem.onclick = function(e) {
             e = e || event;
             var source = e.boardElem || e.target;
-            var id = source.getAttribute("id"); // get all btns 1...9 (query DOM and empty buttons when game is restarted)
+            var id = source.getAttribute("id"); // get all btns 1...9 
             this.getSquareValues(id); // pass the id of the buttons clicked
         }.bind(this);
     },
@@ -53,29 +52,28 @@ TicTacToe.prototype = { //gives instances of TicTacToe the below methods and val
         if (squareValue.value !== "") { // if there is X or O 
             return;
         }
-        if (squareValue !== "X" && squareValue !== "O" && this.gameOver !== true) { // stops a square being selected more than once
-            // and stops clicking square when the game is over
+        if (squareValue === "" && this.gameOver !== true) { // stops a square being selected more than once
             if (this.xTurn) {
                 this.moves += 1;
-                squareValue.value = "X"; // draw X on board
-                this.xTurn = false; // then it is no longer the turn of X
+                squareValue.value = "X"; 
+                this.xTurn = false; 
                 this.statusElem.innerHTML = "It is the turn of O";
             } else {
                 this.moves += 1;
-                squareValue.value = "O"; // if is O's turn, draw O
-                this.xTurn = true; // it is now the turn of X
+                squareValue.value = "O"; 
+                this.xTurn = true; 
                 this.statusElem.innerHTML = "It is the turn of X";
             }
         } else {
-            return; // exit method 
+            return;  
         }
-        if (this.moves === 9) { // check number of moves to see that 9 moves were made to complete a game
+        if (this.moves === 9) { 
             this.gameOver = true;
         }
         this.checkForWinner();
     },
 
-    checkForWinner: function() { // check all 8 winning combinations by holding them in an array
+    checkForWinner: function() { // check all 8 winning combinations 
         var arr = []; // declare an array that holds all button values
         // put all values of all 9 squares into the array
         arr[1] = document.getElementById("btn1").value;
@@ -152,4 +150,4 @@ TicTacToe.prototype = { //gives instances of TicTacToe the below methods and val
         this.getSquareValues();
     }
 };
-var playGame = new TicTacToe(); // new object which inherits from TicTacToe 
+var playGame = new TicTacToe(); // new object which inherits from TicTacToe

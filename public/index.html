@@ -5,59 +5,77 @@
     <meta charset="utf-8">
     <title>Tic-Tac-Toe</title>
     <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Open+Sans">
 </head>
 
 <body>
-    <h1 id="header">Tic-Tac-Toe</h1>
     <div id="main-wrapper">
-        <!-- use a table as everything is formatted for me-->
-        <table id="game-board">
-            <tbody>
-                <tr class="row">
-                    <td>
-                        <input class="square" id="btn1" type="button" value=" ">
-                    </td>
-                    <td>
-                        <input class="square" id="btn2" type="button" value=" ">
-                    </td>
-                    <td>
-                        <input class="square" id="btn3" type="button" value=" ">
-                    </td>
-                </tr>
-                <tr class="row">
-                    <td>
-                        <input class="square" id="btn4" type="button" value=" ">
-                    </td>
-                    <td>
-                        <input class="square" id="btn5" type="button" value=" ">
-                    </td>
-                    <td>
-                        <input class="square" id="btn6" type="button" value=" ">
-                    </td>
-                </tr>
-                <tr class="row">
-                    <td>
-                        <input class="square" id="btn7" type="button" value=" ">
-                    </td>
-                    <td>
-                        <input class="square" id="btn8" type="button" value=" ">
-                    </td>
-                    <td>
-                        <input class="square" id="btn9" type="button" value=" ">
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <div id="button-wrapper">
-            <button id="start-button">Start Game</button>
+        <h1 id="header">Tic-Tac-Toe</h1>
+        <div id="user-wrapper">
+            <div id="get-user">
+                <form id="user-form">
+                    <input id="user-input" typ="text" name="name" placeholder="enter name" />
+                    <button type="submit" autofocus="true" form="user-form" name="button">Send</button>
+                </form>
+            </div>
+            <div id="user-info">
+                <span id="user-name">Please enter name</span>
+                <span id="user-err"></span>
+            </div>
         </div>
-        <br>
-        <div id="results"></div>
-        <br>
-        <div id="status"></div>
+        <div id="game-wrapper">
+            <!-- use a table as everything is formatted for me-->
+            <table id="game-board">
+                <tbody>
+                    <tr class="row">
+                        <td>
+                            <input class="square" id="btn1" type="button" autofocus="true" value=" ">
+                        </td>
+                        <td>
+                            <input class="square" id="btn2" type="button" autofocus="true" value=" ">
+                        </td>
+                        <td>
+                            <input class="square" id="btn3" type="button" autofocus="true" value=" ">
+                        </td>
+                    </tr>
+                    <tr class="row">
+                        <td>
+                            <input class="square" id="btn4" type="button" autofocus="true" value=" ">
+                        </td>
+                        <td>
+                            <input class="square" id="btn5" type="button" autofocus="true" value=" ">
+                        </td>
+                        <td>
+                            <input class="square" id="btn6" type="button" autofocus="true" value=" ">
+                        </td>
+                    </tr>
+                    <tr class="row">
+                        <td>
+                            <input class="square" id="btn7" type="button" autofocus="true" value=" ">
+                        </td>
+                        <td>
+                            <input class="square" id="btn8" type="button" autofocus="true" value=" ">
+                        </td>
+                        <td>
+                            <input class="square" id="btn9" type="button" autofocus="true" value=" ">
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div id="button-wrapper">
+                <button id="start-button">Start Game</button>
+            </div>
+            <br>
+            <div id="results"></div>
+            <br>
+            <div id="status"></div>
+            <div id="user-container">
+                <p id="user-list"></p>
+            </div>
+        </div>
     </div>
     <script src="socket.io/socket.io.js"></script>
-    <script type="text/javascript" src="client.js"></script>
+    <script src="client.js"></script>
 </body>
 
 </html>

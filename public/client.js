@@ -51,6 +51,7 @@ Author: Khalid Omar Ali
                 userWrapper.style.display = "none";
                 // start game
                 gameWrapper.style.display = "block";
+
                 // if name is already taken
             } else {
                 // handle error
@@ -60,7 +61,6 @@ Author: Khalid Omar Ali
             userInput.value = "";
         });
     });
-
     function addPlayers(data) {
             var i, str = "",
                 len = data.length;
@@ -73,14 +73,6 @@ Author: Khalid Omar Ali
     socket.on("players", function(data) {
         addPlayers(data);
     });
-    /*
-        // identify player
-        socket.on("player", function(player) {
-            if (player === 1 && player === 2) {
-                console.log("game started, this is player " + player + ".");
-            }
-        });
-    */
     // remove players upon disconnection from socket
     socket.on("disconnected", function(data) {
         addPlayers(data);

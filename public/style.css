@@ -45,7 +45,7 @@ body {
 /* hide game until the user logs on */
 
 #game-wrapper {
-    display: none;
+    display: inline;
     height: 100%;
     margin: auto;
 }

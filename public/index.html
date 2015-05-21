@@ -11,19 +11,7 @@
 <body>
     <div id="main-wrapper">
         <h1 id="header">Tic-Tac-Toe</h1>
-        <div id="user-wrapper">
-            <div id="get-user">
-                <form id="user-form">
-                    <input id="user-input" typ="text" name="name" placeholder="enter name" />
-                    <button type="submit" autofocus="true" form="user-form" name="button">Send</button>
-                </form>
-            </div>
-            <div id="user-info">
-                <span id="user-name">Please enter name</span>
-                <span id="user-err"></span>
-            </div>
-        </div>
-        <div id="game-wrapper">
+            <div id="game-wrapper">
             <!-- use a table as everything is formatted for me-->
             <table id="game-board">
                 <tbody>
@@ -63,16 +51,12 @@
                 </tbody>
             </table>
             <div id="button-wrapper">
-                <button id="start-button">Start Game</button>
+                <button id="start-button">Re-Start</button>
             </div>
             <br>
             <div id="results"></div>
             <br>
             <div id="status"></div>
-            <div id="user-container">
-                <p id="user-list"></p>
-            </div>
-            <div id "game-room"></div>
         </div>
     </div>
     <script src="socket.io/socket.io.js"></script>

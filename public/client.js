@@ -105,18 +105,14 @@ Author: Khalid Omar Ali
             }
         },
 
-        validMoves: function(board) {
-            var i, totalMoves = [];
-            board = this.boardArr;
-            for (i = 0; i < 10; i += 1) {
-                if (board[i] !== null) {
-                    totalMoves.push[i];
-                }
-                return totalMoves;
+        validMoves: function() {
+            if(this.moves === 9) {
+                return this.moves;
             }
         },
 
         drawn: function() {
+            // indices begin at 0
             if (this.validMoves() === 9) {
                 alert("Draw game!");
                 this.resetGame();
@@ -157,5 +153,5 @@ Author: Khalid Omar Ali
             this.isGameOver();
         }
     };
-    var playNodeTacToe = new NodeTacToe(); // create a new instance of the GameBoard
+    var GameBoard = new NodeTacToe(GameBoard); // create a new instance of the GameBoard
 })();

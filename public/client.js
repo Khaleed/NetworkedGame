@@ -8,7 +8,6 @@ Author: Khalid Omar Ali
 (function() {
 
     'use strict';
-
     // var socket = io.connect("http://localhost:3000");
     if (!Function.prototype.bind) { // credit to Crockford for this bind function  
         Function.prototype.bind = function(oThis) {
@@ -27,7 +26,14 @@ Author: Khalid Omar Ali
             return fBound;
         };
     }
-
+    // connect to socket.io
+    var socket = io.connect("http://localhost:3000");
+    // create game room
+    var room = window.location.pathname.split("/").pop();
+    // once connected, emit room 
+    socket.on("connect", function(room) {
+        socket.emit("game room", room);
+    });
     var NodeTacToe = function() { // current function constructor 
         this.init(); // constructor invocation method - this bound to the new object 
     };
@@ -153,5 +159,5 @@ Author: Khalid Omar Ali
             this.isGameOver();
         }
     };
-    var GameBoard = new NodeTacToe(GameBoard); // create a new instance of the GameBoard
+    var GameBoard = new NodeTacToe(); // create a new instance of the GameBoard
 })();

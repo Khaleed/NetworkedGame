@@ -22,9 +22,8 @@ Socket.io is a powerful and flexible server-side and client-side engine. It enab
 
 Multi-player Game
 
-Smoothness of game plays and multiplayer mode is achieved by ensuring all the game's logic is undertaken by the server. The client simply mirrors the serve-side. Server is the authority of the game states and the client runs the game locally. The client's input is sent to the server, and positions updated whilst waiting for messages from server (client-prediction) to avoid latency issues
+Smoothness of game plays and multiplayer mode is achieved by ensuring all the game's logic is undertaken by the server. The client simply mirrors the server-side. Server is the authority of the game states and the client runs the game locally. The client's input is sent to the server, and positions updated whilst waiting for messages from server (client-prediction) to avoid latency issues
 
-Approach taken to networking the game is fairly simple. The game can only have two players. A client connects to the server, then the server either gives them an existing game to join or creates a game for another player to join. Then the game is added
-on the list of games for the server to update and clients update their games later
+Approach taken to networking the game is fairly simple. The game can only have two players. A client connects to the server, then the server creates a unique game room where two players can joint to play the game
 
 

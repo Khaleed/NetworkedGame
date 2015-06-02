@@ -30,10 +30,26 @@ Author: Khalid Omar Ali
     var socket = io.connect("http://localhost:3000");
     // create game room
     var room = window.location.pathname.split("/").pop();
+    // addPLayer function
+    function addPlayer(user) {
+        document.getElementById("player").innerHTML = user;
+    }
     // once connected, emit room 
-    socket.on("connect", function(room) {
-        socket.emit("game room", room);
+    socket.on("connect", function() {
+        socket.emit("room", room);
     });
+    socket.on("player", function(player) {
+        if(player === 1) {
+            console.log("This is player " + player);
+            // share URL
+        }
+        else if(player === 2) {
+            console.log("This is player " + player);
+            // add player
+            addPlayer("Player 2");
+        }
+    })
+
     var NodeTacToe = function() { // current function constructor 
         this.init(); // constructor invocation method - this bound to the new object 
     };
@@ -159,5 +175,5 @@ Author: Khalid Omar Ali
             this.isGameOver();
         }
     };
-    var GameBoard = new NodeTacToe(); // create a new instance of the GameBoard
+    var gameBoard = new NodeTacToe(); // create a new instance of the GameBoard
 })();

@@ -23,7 +23,6 @@ about Game Networking
 (function() {
 
 	'use strict';
-
 	// require express
 	var express = require("express"),
 		// declare a new instance of express
@@ -37,10 +36,9 @@ about Game Networking
 		// require randomString
 		randomstring = require("randomstring"),
 		// curent tcp port
-		port,
-		// public directory
-		publicDir;
+		port;
 	// routes
+	// once you are on the home/root
 	app.get("/", function(req, res) {
 		// create unique id
 		var id = randomstring.generate(7);
@@ -48,11 +46,14 @@ about Game Networking
 		res.redirect("/game/" + id);
 	});
 	// dynamially create route for the unique game rooms
+	// id is the placeholder used to name arguments 
+	// part of the URL path
 	app.get("/game/:id", function(req, res) {
-		res.sendFile(__dirname + "/public/index.html");
+		// relative path
+		res.sendFile(__dirname + "/index.html");
 	});
 	// routes to static files
-	app.use("public", express.static("public"));
+	app.use("/public", express.static("public")); 	
 	// listen for connection event to socket.io
 	io.on("connection", function(client) {
 		console.log("socket.io connection established");

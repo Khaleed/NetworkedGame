@@ -68,11 +68,8 @@ about Game Networking
 		console.log("socket.io connection established");
 		// get elements
 		var roomName,
-			sockets = {},
-			user1Id,
-			user2Id,
-			whoseTurn;
-
+			takeTurn,
+			start;
 		// join the socket's room
 		// once client joins, we get a ping
 		socket.on("room", function(room) {
@@ -100,9 +97,9 @@ about Game Networking
 				io.to(socket.id).emit("player", 2);
 				console.log("what is socket 2's id " + socket.id);
 				// emit to room game can start
-				io.to(roomName).emit("start game", true);
+				io.to(roomName).emit("start", true);
 				// emit to room whoseTurn, player1 is first
-				io.to(roomName).emit("whoseTurn", 1);
+				io.to(roomName).emit("takeTurn", 1);
 			}
 		});
 	});

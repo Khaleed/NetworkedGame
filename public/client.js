@@ -8,11 +8,15 @@ Author: Khalid Omar Ali
 (function() {
 
     'use strict';
-    var socket = io.connect("http://localhost:3000");
-    // connect to socket.io
-    var socket = io.connect("http://localhost:3000");
-    // create game room
-    var room = window.location.pathname.split("/").pop();
+    var socket = io.connect("http://localhost:3000"),
+        // connect to socket.io
+        socket = io.connect("http://localhost:3000"),
+        // create game room
+        room = window.location.pathname.split("/").pop(),
+        user,
+        takeTurn,
+        isMyTurn,
+        start;
     // once connected emit room event
     socket.on("connect", function() {
         socket.emit("room", room);
@@ -22,24 +26,45 @@ Author: Khalid Omar Ali
             var container = document.getElementById("player");
             container.innerHTML = user;
         }
-        // once connected emit room
+        // listen for player event and add players
     socket.on("player", function(data) {
-        if (data === 1) {
-            console.log("This is player " + data + ".");
+        user = data;
+        if (user === 1) {
+            console.log("This is player " + user + ".");
             // share URL
-        } else if (data === 2) {
-            console.log("This is player " + data + ".");
+        } else if (user === 2) {
+            console.log("This is player " + user + ".");
             addPlayer2("Player 2");
         }
     });
-    socket.on("start game", function(data) {
-        if (data === true) {
+    // listen for start event and update turn status
+    socket.on("start", function(data) {
+        start = start;
+        if (start === true) {
             gameBoard.turnsUpdate();
             console.log("game has started" + gameBoard.turnsUpdate());
         }
     });
+    // listen for takeTurn event and let players take turns
+    socket.on("takeTurn", function(data) {
+        takeTurn = data;
+        // as long as the game is not over
+        if (gameBoard.gameOver === !true) {
+            // and takeTurn is equal to player 1
+            if (takeTurn === user) {
+                isMyTurn = true;
+                console.log("Player 1 turn : " + isMyTurn);
+            } else {
+                isMyTurn = false;
+                console.log("Player 1 turn " + isMyTurn);
+            }
+        }
+    });
+    // listen for render event and update moves
+    
+
     // current function constructor for NodeTacToe
-    var NodeTacToe = function() {  
+    var NodeTacToe = function() {
         this.init(); // constructor invocation method - this bound to the new object 
     };
     // this is the prototype object associated with the above function constructor 
@@ -63,14 +88,12 @@ Author: Khalid Omar Ali
             [0, 4, 8],
             [2, 4, 6]
         ],
-
-        resetGame: function() {
-            var elem, i, j;
-            for (i = 0; i <= 8; i += 1) {
-                this.boardArr[i] = null; // set all values of board array to null
+        resetGame: function() {            var elem, i, j;
+            for (i = 0; i <= 8; += 1) {
+                this.boardArr[i] = null; // set all values of bad array to null
             }
-            for (j = 0; j <= 8; j += 1) {
-                this.squares[j].value = ""; // clear the board UI
+            for (j = 0; j <= 8;  += 1) {
+                this.squares[j].value = ""; // clear the board I
             }
             this.moves = 0; // current move incrementor
             this.gameOver = false;

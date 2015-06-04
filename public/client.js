@@ -19,21 +19,27 @@ Author: Khalid Omar Ali
     });
     // addPLayer function
     function addPlayer2(user) {
-        var container = document.getElementById("player");
-        container.innerHTML = user;
-    }
-    // once connected emit room
-    socket.on("player", function(player) {
-        if (player === 1) {
-            console.log("This is player " + player + ".");
-        // share URL
-        } else if (player === 2) {
-            console.log("This is player " + player + ".");
+            var container = document.getElementById("player");
+            container.innerHTML = user;
+        }
+        // once connected emit room
+    socket.on("player", function(data) {
+        if (data === 1) {
+            console.log("This is player " + data + ".");
+            // share URL
+        } else if (data === 2) {
+            console.log("This is player " + data + ".");
             addPlayer2("Player 2");
         }
     });
-
-    var NodeTacToe = function() { // current function constructor 
+    socket.on("start game", function(data) {
+        if (data === true) {
+            gameBoard.turnsUpdate();
+            console.log("game has started" + gameBoard.turnsUpdate());
+        }
+    });
+    // current function constructor for NodeTacToe
+    var NodeTacToe = function() {  
         this.init(); // constructor invocation method - this bound to the new object 
     };
     // this is the prototype object associated with the above function constructor 
@@ -100,6 +106,10 @@ Author: Khalid Omar Ali
             return board[position] === null; // returns true if space is available
         },
 
+        turnsUpdate: function() {
+            this.statusElem.innerHTML = "It's the turn of " + (this.xTurn ? "X" : "O");
+        },
+
         checkForWinningMove: function() { // check 3 rows, 3 columns and 2 diagonals using winCombo array that holds all winning combinations of the game
             var i;
             for (i = 0; i < this.winCombo.length; i += 1) {
@@ -153,7 +163,7 @@ Author: Khalid Omar Ali
                 board[squarePos] = this.xTurn ? "X" : "O";
                 this.xTurn = !this.xTurn;
                 squareElem.value = board[squarePos]; // udpate UI
-                this.statusElem.innerHTML = "It's the turn of " + (this.xTurn ? "X" : "O");
+                this.turnsUpdate();
             }
             this.isGameOver();
         }

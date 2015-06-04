@@ -49,13 +49,13 @@ about Game Networking
 		// create unique id
 		var id = randomstring.generate(7);
 		// redirect to dynamic route
-		res.redirect("/game/" + id);
+		res.redirect("/tictactoe/" + id);
 	});
 
 	// dynamially create route for the unique game rooms
 	// id is the placeholder used to name arguments 
 	// part of the URL path
-	app.get("/game/:id", function(req, res) {
+	app.get("/tictactoe/:id", function(req, res) {
 		// current HTML file
 		res.sendFile(__dirname + "/index.html");
 	});

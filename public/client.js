@@ -8,47 +8,30 @@ Author: Khalid Omar Ali
 (function() {
 
     'use strict';
-    // var socket = io.connect("http://localhost:3000");
-    if (!Function.prototype.bind) { // credit to Crockford for this bind function  
-        Function.prototype.bind = function(oThis) {
-            if (typeof this !== "function") {
-                // closest thing possible to the ECMAScript 5 internal IsCallable function
-                throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
-            }
-            var aArgs = Array.prototype.slice.call(arguments, 1),
-                fToBind = this,
-                fNOP = function() {},
-                fBound = function() {
-                    return fToBind.apply(this instanceof fNOP && oThis ? this : oThis, aArgs.concat(Array.prototype.slice.call(arguments)));
-                };
-            fNOP.prototype = this.prototype;
-            fBound.prototype = new fNOP();
-            return fBound;
-        };
-    }
+    var socket = io.connect("http://localhost:3000");
     // connect to socket.io
     var socket = io.connect("http://localhost:3000");
     // create game room
     var room = window.location.pathname.split("/").pop();
-    // addPLayer function
-    function addPlayer(user) {
-        document.getElementById("player").innerHTML = user;
-    }
-    // once connected, emit room 
+    // once connected emit room event
     socket.on("connect", function() {
         socket.emit("room", room);
     });
+    // addPLayer function
+    function addPlayer2(user) {
+        var container = document.getElementById("player");
+        container.innerHTML = user;
+    }
+    // once connected emit room
     socket.on("player", function(player) {
-        if(player === 1) {
-            console.log("This is player " + player);
-            // share URL
+        if (player === 1) {
+            console.log("This is player " + player + ".");
+        // share URL
+        } else if (player === 2) {
+            console.log("This is player " + player + ".");
+            addPlayer2("Player 2");
         }
-        else if(player === 2) {
-            console.log("This is player " + player);
-            // add player
-            addPlayer("Player 2");
-        }
-    })
+    });
 
     var NodeTacToe = function() { // current function constructor 
         this.init(); // constructor invocation method - this bound to the new object 
@@ -120,15 +103,15 @@ Author: Khalid Omar Ali
         checkForWinningMove: function() { // check 3 rows, 3 columns and 2 diagonals using winCombo array that holds all winning combinations of the game
             var i;
             for (i = 0; i < this.winCombo.length; i += 1) {
-                if (this.boardArr[this.winCombo[i][0]] === this.boardArr[this.winCombo[i][1]] && this.boardArr[this.winCombo[i][1]] === 
+                if (this.boardArr[this.winCombo[i][0]] === this.boardArr[this.winCombo[i][1]] && this.boardArr[this.winCombo[i][1]] ===
                     this.boardArr[this.winCombo[i][2]] && this.boardArr[this.winCombo[i][1]] !== null) {
                     return true;
-                } 
+                }
             }
         },
 
         validMoves: function() {
-            if(this.moves === 9) {
+            if (this.moves === 9) {
                 return this.moves;
             }
         },

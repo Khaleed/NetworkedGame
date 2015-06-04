@@ -51,6 +51,7 @@ about Game Networking
 		// redirect to dynamic route
 		res.redirect("/game/" + id);
 	});
+
 	// dynamially create route for the unique game rooms
 	// id is the placeholder used to name arguments 
 	// part of the URL path
@@ -67,52 +68,50 @@ about Game Networking
 		console.log("socket.io connection established");
 		// get elements
 		var roomName,
-			clients = {},
+			sockets = {},
 			user1Id,
 			user2Id,
 			whoseTurn;
+
 		// join the socket's room
-		socket.on("room", function(err, room) {
-			if (err) {
-				console.error(err);
-			} else {
-				var gameLobby, clientsNo, handShake;
-				// join game room
-				socket.join(room);
-				roomName = room;
-				console.log("connected to room: " + roomName);
-				// return an array of connected clients to room
-				gameLobby = io.sockets.clients(roomName);
-				console.log("game room: " + gameLobby);
-				// number of clients in game room
-				clientsNo = gameLobby.length;
-				// get the first socket/player
-				if (clientsNo === 1) {
-					user1Id = gameLobby[0].id;
-					// get the handshake and session object
-					handShake = socket.handshake;
-					// connected player with its socket ID
-					users[handShake.session.username] = socket.id;
-					clients[socket.id] = socket;
-					clients[users[user1Id]].emit("player", 1);
-				}
-				// start game when 2 players are connected
-				else if (clientsNo === 2) {
-					user2Id = gameLobby[1].id;
-					clients[users[user2Id]].emit("player", 2);
-					io.to(roomName).emit("start game", true);
-					// player 1 makes the first move
-					io.to(roomName).emit("whoseTurn", 1);
-				} else {
-					console.log("only two players can play");
-				}
+		// once client joins, we get a ping
+		socket.on("room", function(room) {
+			// join game room
+			socket.join(room);
+			var gameLobby, clientsNo, nameSpace = "/";
+			roomName = room;
+			console.log("connected to room: " + roomName);
+			// return an associative array of socket id properties
+			gameLobby = io.nsps[nameSpace].adapter.rooms[roomName];
+			// number of clients in game room
+			clientsNo = Object.keys(gameLobby).length;
+			console.log(clientsNo);
+			// get the first socket/player
+			if (clientsNo === 1) {
+				// emit to player1 socket
+				// each socket automatically assigned ID
+				console.log("what is socket 1's id " + socket.id);
+				io.to(socket.id).emit("player", 1);
+			}
+			// start game when 2 players are connected
+			else
+			if (clientsNo === 2) {
+				// emit to player2 socket
+				io.to(socket.id).emit("player", 2);
+				console.log("what is socket 2's id " + socket.id);
+				// emit to room game can start
+				io.to(roomName).emit("start game", true);
+				// emit to room whoseTurn, player1 is first
+				io.to(roomName).emit("whoseTurn", 1);
 			}
 		});
 	});
+
 	// listening event handler for server
 	server.on("listening", function() {
 		console.log("OK, the server is listening ");
 	});
+
 	port = process.env.port || 3000;
 	// listen to whatever is in process.env.port or port 3000 
 	server.listen(port, function() {

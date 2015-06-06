@@ -102,6 +102,9 @@ about Game Networking
 				io.to(roomName).emit("takeTurn", 1);
 			}
 		});
+		socket.on("move", function(render) {
+			io.to(roomName).emit("player move", render);
+		});
 	});
 
 	// listening event handler for server

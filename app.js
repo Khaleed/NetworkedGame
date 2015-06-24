@@ -19,6 +19,7 @@ When a player clicks, the client emits X or O to the server
 Server updates state of each character in the 'world' and 
 replies back with a packet containing the state of the 
 character of player
+
 Clients simply incorporate the updates from server
 
 RESOURCE: 
@@ -30,19 +31,18 @@ about Game Networking
 (function() {
 
 	'use strict';
-
 	// require express
-	var express = require("express"),
-		// declare a new instance of express
-		app = express(),
-		// app supplied as argument to HTTP server
-		server = require("http").Server(app),
-		// require socket.io and pass server obj
-		io = require("socket.io")(server),
-		// require randomString 
-		randomstring = require("randomstring"),
-		// curent tcp port
-		port;
+	var express = require("express");
+	// declare a new instance of express
+	var app = express();
+	// app supplied as argument to HTTP server
+	var server = require("http").Server(app);
+	// require socket.io and pass server obj
+	var io = require("socket.io")(server);
+	// require randomString 
+	var randomstring = require("randomstring");
+	// curent tcp port
+	var port;
 
 	// routes
 	app.get("/", function(req, res) {
@@ -67,18 +67,22 @@ about Game Networking
 	io.on("connection", function(socket) {
 		console.log("socket.io connection established");
 		// get elements
-		var roomName,
-			takeTurn,
-			start;
+		var roomName;
+		var takeTurn;
+		var start;
 		// join the socket's room
 		// once client joins, we get a ping
 		socket.on("room", function(room) {
 			// join game room
 			socket.join(room);
-			var gameLobby, clientsNo, nameSpace = "/";
+			// get elements to manipulate callback func
+			var gameLobby;
+			var clientsNo;
+			var nameSpace = "/";
 			roomName = room;
 			console.log("connected to room: " + roomName);
 			// return an associative array of socket id properties
+			// source: http://stackoverflow.com/questions/23858604/how-to-get-rooms-clients-list-in-socket-io-1-0
 			gameLobby = io.nsps[nameSpace].adapter.rooms[roomName];
 			// number of clients in game room
 			clientsNo = Object.keys(gameLobby).length;
@@ -86,13 +90,12 @@ about Game Networking
 			// get the first socket/player
 			if (clientsNo === 1) {
 				// emit to player1 socket
-				// each socket automatically assigned ID
+				// each socket automatically assigned an ID
 				console.log("what is socket 1's id " + socket.id);
 				io.to(socket.id).emit("player", 1);
 			}
 			// start game when 2 players are connected
-			else
-			if (clientsNo === 2) {
+			else if (clientsNo === 2) {
 				// emit to player2 socket
 				io.to(socket.id).emit("player", 2);
 				console.log("what is socket 2's id " + socket.id);
@@ -106,14 +109,12 @@ about Game Networking
 			io.to(roomName).emit("player move", render);
 		});
 	});
-
 	// listening event handler for server
 	server.on("listening", function() {
 		console.log("OK, the server is listening ");
 	});
-
+	// listen to whatever is in process env or port 3000 
 	port = process.env.port || 3000;
-	// listen to whatever is in process.env.port or port 3000 
 	server.listen(port, function() {
 		console.log("listening on port " + port);
 	});

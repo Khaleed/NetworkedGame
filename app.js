@@ -41,6 +41,8 @@ about Game Networking
 	var io = require("socket.io")(server);
 	// require randomString 
 	var randomstring = require("randomstring");
+	// require color.js for debugging
+	var colors = require("colors");
 	// curent tcp port
 	var port;
 
@@ -65,14 +67,14 @@ about Game Networking
 
 	// listen for connection event to socket.io
 	io.on("connection", function(socket) {
-		console.log("socket.io connection established");
+		console.log("socket.io connection established" .red);
 		// get elements
 		var roomName;
 		var takeTurn;
 		var start;
 		// join the socket's room
 		// once client joins, we get a ping
-		socket.on("room", function(room) {
+	socket.on("room", function(room) {
 			// join game room
 			socket.join(room);
 			// get elements to manipulate callback func
@@ -80,25 +82,25 @@ about Game Networking
 			var clientsNo;
 			var nameSpace = "/";
 			roomName = room;
-			console.log("connected to room: " + roomName);
+			console.log("connected to room: " .grey + roomName);
 			// return an associative array of socket id properties
 			// source: http://stackoverflow.com/questions/23858604/how-to-get-rooms-clients-list-in-socket-io-1-0
 			gameLobby = io.nsps[nameSpace].adapter.rooms[roomName];
 			// number of clients in game room
 			clientsNo = Object.keys(gameLobby).length;
-			console.log(clientsNo);
+			console.log("number of clients logged " .green + clientsNo);
 			// get the first socket/player
 			if (clientsNo === 1) {
 				// emit to player1 socket
 				// each socket automatically assigned an ID
-				console.log("what is socket 1's id " + socket.id);
+				console.log("what is socket 1's id " .red + socket.id);
 				io.to(socket.id).emit("player", 1);
 			}
 			// start game when 2 players are connected
 			else if (clientsNo === 2) {
 				// emit to player2 socket
 				io.to(socket.id).emit("player", 2);
-				console.log("what is socket 2's id " + socket.id);
+				console.log("what is socket 2's id " .red + socket.id);
 				// emit to room game can start
 				io.to(roomName).emit("start", true);
 				// emit to room whoseTurn, player1 is first
@@ -106,16 +108,16 @@ about Game Networking
 			}
 		});
 		socket.on("move", function(render) {
-			io.to(roomName).emit("player move", render);
+			io.to(roomName).emit("player move", .blue +render);
 		});
 	});
 	// listening event handler for server
 	server.on("listening", function() {
-		console.log("OK, the server is listening ");
+		console.log("OK, the server is listening " .yellow);
 	});
 	// listen to whatever is in process env or port 3000 
 	port = process.env.port || 3000;
 	server.listen(port, function() {
-		console.log("listening on port " + port);
+		console.log("listening on port " .yellow + port);
 	});
 })();

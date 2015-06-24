@@ -8,7 +8,6 @@ Author: Khalid Omar Ali
 (function() {
 
     'use strict';
-    var socket = io.connect('http://localhost:3000');
     // connect to socket.io
     var socket = io.connect('http://localhost:3000');
     // create game room
@@ -16,7 +15,8 @@ Author: Khalid Omar Ali
     var user;
     var takeTurn;
     var isMyTurn;
-    var start;
+    var turnInfo;
+    var startGame;
     var gameOver = false;
     var renderMove;
     var resetElem = document.getElementById('start-button');
@@ -51,7 +51,7 @@ Author: Khalid Omar Ali
         user = data;
         if (user === 1) {
             console.log('This is player ' + user + '.');
-            // share URL
+            // share URL UI - implement later
         } else if (user === 2) {
             console.log('This is player ' + user + '.');
             addPlayer2('Player 2');
@@ -59,16 +59,18 @@ Author: Khalid Omar Ali
     });
     // update turns
     function turnsUpdate() {
-        statusElem.innerHTML = "It's the turn of " + (xTurn ? 'X' : 'O');
+        turnInfo = "It's Player1's turn";
+        statusElem.innerHTML = turnInfo;
     }
-    // listen for start event and update turn status
-    socket.on('start', function(data) {
-        start = start;
-        if (start === true) {
-            return turnsUpdate();
+    // listen for start event from server and update turn status
+    socket.on('startGame', function(data) {
+        startGame = data;
+        if (startGame === true) {
+            // side-effect of player 1 turn
+            turnsUpdate();
         }
     });
-    // listen for takeTurn event and let players take turns
+    // listen for takeTurn event from server and let players take turns
     socket.on('takeTurn', function(data) {
         takeTurn = data;
         // as long as the game is not over
@@ -76,13 +78,16 @@ Author: Khalid Omar Ali
             // and takeTurn is equal to player 1
             if (takeTurn === user) {
                 isMyTurn = true;
+                turnInfo = turnsUpdate();
                 console.log('Player 1 turn : ' + isMyTurn);
             } else {
                 isMyTurn = false;
+                turnInfo = 'It"s player ' + takeTurn + ' turn'; 
                 console.log('Player 2 turn ' + isMyTurn);
             }
+            // side effect of letting me whose turn it is
+            turnsUpdate();
         }
-        return isMyTurn;
     });
     // reset 
     function resetGame() {

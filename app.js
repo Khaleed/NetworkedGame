@@ -16,6 +16,7 @@ the same initial game state
 GAME STATE: 
 The game state exists on the server and mirrored on clients
 When a player clicks, the client emits X or O to the server
+
 Server updates state of each character in the 'world' and 
 replies back with a packet containing the state of the 
 character of player
@@ -28,96 +29,99 @@ about Game Networking
 
 */
 
-(function() {
+(function () {
 
 	'use strict';
 	// require express
-	var express = require("express");
+	var express = require('express');
 	// declare a new instance of express
 	var app = express();
 	// app supplied as argument to HTTP server
-	var server = require("http").Server(app);
+	var server = require('http').Server(app);
 	// require socket.io and pass server obj
-	var io = require("socket.io")(server);
+	var io = require('socket.io')(server);
 	// require randomString 
-	var randomstring = require("randomstring");
+	var randomstring = require('randomstring');
 	// require color.js for debugging
-	var colors = require("colors");
+	var colors = require('colors');
 	// curent tcp port
 	var port;
 
 	// routes
-	app.get("/", function(req, res) {
+	app.get('/', function (req, res) {
 		// create unique id
 		var id = randomstring.generate(7);
 		// redirect to dynamic route
-		res.redirect("/tictactoe/" + id);
+		res.redirect('/tictactoe/' + id);
 	});
 
 	// dynamially create route for the unique game rooms
 	// id is the placeholder used to name arguments 
 	// part of the URL path
-	app.get("/tictactoe/:id", function(req, res) {
+	app.get('/tictactoe/:id', function (req, res) {
 		// current HTML file
-		res.sendFile(__dirname + "/index.html");
+		res.sendFile(__dirname + '/index.html');
 	});
 
 	// routes to static files
-	app.use("/public", express.static("public"));
+	app.use('/public', express.static('public'));
 
 	// listen for connection event to socket.io
-	io.on("connection", function(socket) {
-		console.log("socket.io connection established".red);
+	io.on('connection', function (socket) {
+		console.log('socket.io connection established'.red);
 		// get elements
 		var roomName;
 		var takeTurn;
 		var start;
+		var xTurn = true;
 		// join the socket's room
 		// once client joins, we get a ping
-		socket.on("room", function(room) {
+		socket.on('room', function (room) {
 			// join game room
 			socket.join(room);
 			// get elements to manipulate callback func
 			var gameLobby;
 			var clientsNo;
-			var nameSpace = "/";
+			var nameSpace = '/';
 			roomName = room;
-			console.log("connected to room: ".grey + roomName);
+			// console debug
+			console.log('connected to room: '.grey + roomName);
 			// return an associative array of socket id properties
 			// source: http://stackoverflow.com/questions/23858604/how-to-get-rooms-clients-list-in-socket-io-1-0
 			gameLobby = io.nsps[nameSpace].adapter.rooms[roomName];
 			// number of clients in game room
 			clientsNo = Object.keys(gameLobby).length;
-			console.log("number of clients logged ".green + clientsNo);
+			console.log('how many people in room '. green + Object.keys(gameLobby));
+			console.log('number of clients logged '.green + clientsNo);
 			// get the first socket/player
 			if (clientsNo === 1) {
 				// emit to player1 socket
 				// each socket automatically assigned an ID
 				console.log("what is socket 1's id ".red + socket.id);
-				io.to(socket.id).emit("player", 1);
+				io.to(socket.id).emit('player', 1);
 			}
 			// start game when 2 players are connected
 			else if (clientsNo === 2) {
 				// emit to player2 socket
-				io.to(socket.id).emit("player", 2);
+				io.to(socket.id).emit('player', 2);
 				console.log("what is socket 2's id ".red + socket.id);
 				// emit to room that game can start
-				io.to(roomName).emit("startGame", true);
+				io.to(roomName).emit('startGame', true);
 				// emit to room that player 1 goes first
-				io.to(roomName).emit("takeTurn", 1);
+				io.to(roomName).emit('takeTurn', 1);
 			}
 		});
-		socket.on("move", function(renderMove) {
-			io.to(roomName).emit("player move", renderMove);
-		});
+		// render game moves
+		
+   
 	});
 	// listening event handler for server
-	server.on("listening", function() {
-		console.log("OK, the server is listening ".yellow);
+	server.on('listening', function () {
+		console.log('OK, the server is listening '.yellow);
 	});
 	// listen to whatever is in process env or port 3000 
 	port = process.env.port || 3000;
-	server.listen(port, function() {
-		console.log("listening on port ".yellow + port);
+	server.listen(port, function () {
+		console.log('listening on port '.yellow + port);
 	});
 })();

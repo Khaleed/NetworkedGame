@@ -29,7 +29,7 @@ about Game Networking
 
 */
 
-(function () {
+(function() {
 
 	'use strict';
 	// require express
@@ -48,7 +48,7 @@ about Game Networking
 	var port;
 
 	// routes
-	app.get('/', function (req, res) {
+	app.get('/', function(req, res) {
 		// create unique id
 		var id = randomstring.generate(7);
 		// redirect to dynamic route
@@ -58,7 +58,7 @@ about Game Networking
 	// dynamially create route for the unique game rooms
 	// id is the placeholder used to name arguments 
 	// part of the URL path
-	app.get('/tictactoe/:id', function (req, res) {
+	app.get('/tictactoe/:id', function(req, res) {
 		// current HTML file
 		res.sendFile(__dirname + '/index.html');
 	});
@@ -67,7 +67,7 @@ about Game Networking
 	app.use('/public', express.static('public'));
 
 	// listen for connection event to socket.io
-	io.on('connection', function (socket) {
+	io.on('connection', function(socket) {
 		console.log('socket.io connection established'.red);
 		// get elements
 		var roomName;
@@ -76,19 +76,19 @@ about Game Networking
 		var gameOver = false;
 		var xTurn = true;
 		var boardArr = [];
-        var winCombo = [
-            [0, 1, 2],
-            [3, 4, 5],
-            [6, 7, 8],
-            [0, 3, 6],
-            [1, 4, 7],
-            [2, 5, 8],
-            [0, 4, 8],
-            [2, 4, 6]
-        ];
+		var winCombo = [
+			[0, 1, 2],
+			[3, 4, 5],
+			[6, 7, 8],
+			[0, 3, 6],
+			[1, 4, 7],
+			[2, 5, 8],
+			[0, 4, 8],
+			[2, 4, 6]
+		];
 		// join the socket's room
 		// once client joins, we get a ping
-		socket.on('room', function (room) {
+		socket.on('room', function(room) {
 			// join game room
 			socket.join(room);
 			// get elements to manipulate callback func
@@ -103,7 +103,7 @@ about Game Networking
 			gameLobby = io.nsps[nameSpace].adapter.rooms[roomName];
 			// number of clients in game room
 			clientsNo = Object.keys(gameLobby).length;
-			console.log('how many people in room '. green + Object.keys(gameLobby));
+			console.log('how many people in room '.green + Object.keys(gameLobby));
 			console.log('number of clients logged '.green + clientsNo);
 			// get the first socket/player
 			if (clientsNo === 1) {
@@ -125,15 +125,15 @@ about Game Networking
 		});
 		// render game moves
 
-   
+
 	});
 	// listening event handler for server
-	server.on('listening', function () {
+	server.on('listening', function() {
 		console.log('OK, the server is listening '.yellow);
 	});
 	// listen to whatever is in process env or port 3000 
 	port = process.env.port || 3000;
-	server.listen(port, function () {
+	server.listen(port, function() {
 		console.log('listening on port '.yellow + port);
 	});
 })();

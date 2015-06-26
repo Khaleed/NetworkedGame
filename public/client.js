@@ -18,7 +18,6 @@ Author: Khalid Omar Ali
         turnInfo,
         startGame,
         gameOver = false,
-        renderMove,
         resetElem = document.getElementById('start-button'),
         boardElem = document.getElementById('game-board'),
         resultElem = document.getElementById('results'),
@@ -67,7 +66,7 @@ Author: Khalid Omar Ali
         // player 1 goes first
         takeTurn = data;
         // as long as the game is not over
-        if (gameOver === !true) {
+        if (gameOver !== true) {
             // and takeTurn is equal to player 1
             if (takeTurn === user) {
                 isMyTurn = true;
@@ -78,23 +77,23 @@ Author: Khalid Omar Ali
                 turnInfo = 'It"s player ' + takeTurn + ' turn';
                 console.log('Player 2 turn ' + isMyTurn);
             }
-            turnsUpdate();
+            updateTurn();
         }
     });
+    function cb() {
+        playMove(this);
+    } 
     // boardSquares event handler 
     for (var i = 0; i < squares.length; i += 1) {
         // add event listener to each square
-        squares[i].addEventListener('click', function() {
-            // this points to square that triggered event
-            playMove(this);
-        });
+        squares[i].addEventListener('click', cb);
     }
     // addPLayer function
     function addPlayer2(userVal) {
         document.getElementById('player').innerHTML = userVal;
     }
     // update turns
-    function turnsUpdate() {
+    function updateTurn() {
         turnInfo = "It's Player1's turn";
         statusElem.innerHTML = turnInfo;
     }
@@ -106,7 +105,7 @@ Author: Khalid Omar Ali
         var sqVal = sqElem.innerHTML,
             // get position of clicked square
             square  = sqElem.getAttribute("data-position"); 
-        if (startGame && gameOver == !true && isMyTurn && sqVal === '') {
+        if (startGame && gameOver !== true && isMyTurn && sqVal === '') {
             // draw move
             renderMove(sqElem);
             // emit move event with user and square values

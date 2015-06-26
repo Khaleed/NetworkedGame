@@ -73,7 +73,19 @@ about Game Networking
 		var roomName;
 		var takeTurn;
 		var start;
+		var gameOver = false;
 		var xTurn = true;
+		var boardArr = [];
+        var winCombo = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6]
+        ];
 		// join the socket's room
 		// once client joins, we get a ping
 		socket.on('room', function (room) {
@@ -112,7 +124,7 @@ about Game Networking
 			}
 		});
 		// render game moves
-		
+
    
 	});
 	// listening event handler for server

@@ -25,7 +25,6 @@ Author: Khalid Omar Ali
         statusElem = document.getElementById('status'),
         squares = document.getElementsByTagName('input'),
         xTurn = true,
-        gameOver = false,
         boardArr = [],
         winCombo = [
             [0, 1, 2],

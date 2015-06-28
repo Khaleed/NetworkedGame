@@ -133,8 +133,23 @@ Author: Khalid Omar Ali
         // add event listener to each square
         squares[i].addEventListener('click', cb);
     }
-    // decide who won
-    socket.on('playMove', function(data) {
-
+    // helper function to place X or O on board
+    function placePiece(board, position) {
+        var i;
+        for(i = 0; i < squares.length; i += 1) {
+            squares[i].innerHTML = board[position];
+        }
+    }
+    // find where other player went and place piece on board
+    socket.on('updateGame', function(data) {
+        // if it's not
+        if (!isMyTurn) {
+            if (data.player === 1) {
+                data.board[data.position] = 'X';
+            } else {
+                data.board[data.position] = 'O';
+            }
+            placePiece(data.board, data.position);
+        }
     });
 })();

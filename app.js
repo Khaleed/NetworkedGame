@@ -75,7 +75,6 @@ about Game Networking
 		var start;
 		var gameOver = false;
 		var xTurn = true;
-		var boardArr = [];
 		var winCombo = [
 			[0, 1, 2],
 			[3, 4, 5],
@@ -131,25 +130,22 @@ about Game Networking
 		// consisting of user & square
 		socket.on("playMove", function(data) {
 			var i;
-			if (data.user === 1) {
-				data.board[data.position] = 'X';
-				console.log('player1 move'.green + data.board);
-				io.to(roomName).emit('player1Move', data.board);
-			} else {
-				data.board[data.position] = 'O';
-				console.log('player2 move'.green + data.board);
-				io.to(roomName).emit('player2Move', data.board);
-			}
 			// check win state
 			for (i = 0; i < winCombo.length; i += 1) {
 				// check for 8 wiinning combos - 3 rows, 3 columns, and 2 diagonals
-				if (boardArr[winCombo[i][0]] === boardArr[winCombo[i][1]] && boardArr[winCombo[i][1]] ===
-					boardArr[winCombo[i][2]] && boardArr[winCombo[i][1]] === undefined) {
+				if (data.board[winCombo[i][0]] === data.board[winCombo[i][1]] && data.board[winCombo[i][1]] ===
+					data.board[winCombo[i][2]] && data.board[winCombo[i][1]] === undefined) {
 					io.to(roomName).emit('win', true);
 				}
 			}
 			// Emit to opponent
-			io.to(roomName).emit('update', data);
+			io.to(roomName).emit('updateGame', data);
+			// Change taking turns
+			if (data.player === 1) {
+				io.to(roomName).emit('whoseTurn', 2);
+			} else {
+				io.to(roomName).emit('whoseTurn', 1);
+			}
 		});
 	});
 	// listening event handler for server

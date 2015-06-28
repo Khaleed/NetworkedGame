@@ -13,10 +13,11 @@ Author: Khalid Omar Ali
         // create game room
         room = window.location.pathname.split('/').pop(),
         user,
-        takeTurn,
+        whoseTurn,
         isMyTurn,
         turnInfo,
         startGame,
+        moves = 0,
         gameOver = false,
         resetElem = document.getElementById('start-button'),
         boardElem = document.getElementById('game-board'),
@@ -24,6 +25,7 @@ Author: Khalid Omar Ali
         statusElem = document.getElementById('status'),
         squares = document.getElementsByTagName('input'),
         xTurn = true,
+        winStatus,
         boardArr = [],
         winCombo = [
             [0, 1, 2],
@@ -39,6 +41,15 @@ Author: Khalid Omar Ali
     socket.on('connect', function() {
         socket.emit('room', room);
     });
+    // addPLayer function
+    function addPlayer2(userVal) {
+        document.getElementById('player').innerHTML = userVal;
+    }
+    // update turns
+    function turnsUpdate() {
+        turnInfo = "It's Player1's turn";
+        statusElem.innerHTML = turnInfo;
+    }
     // listen for player event and add players
     socket.on('player', function(data) {
         user = data;
@@ -49,8 +60,6 @@ Author: Khalid Omar Ali
         } else if (user === 2) {
             console.log('This is player ' + user + '.');
             addPlayer2('Player 2');
-        } else {
-            return;
         }
     });
     // listen for start event from server and update turn status
@@ -61,41 +70,40 @@ Author: Khalid Omar Ali
             turnsUpdate();
         }
     });
-    // listen for takeTurn event from server and let players take turns
-    socket.on('takeTurn', function(data) {
+    // listen for whoseTurn event from server and let players take turns
+    socket.on('whoseTurn', function(data) {
         // player 1 goes first
-        takeTurn = data;
+        whoseTurn = data;
         // as long as the game is not over
         if (gameOver !== true) {
-            // and takeTurn is equal to player 1
-            if (takeTurn === user) {
+            // and whoseTurn is equal to player 1
+            if (whoseTurn === user) {
                 isMyTurn = true;
                 turnInfo = turnsUpdate();
                 console.log('Player 1 turn : ' + isMyTurn);
             } else {
                 isMyTurn = false;
-                turnInfo = 'It"s player ' + takeTurn + ' turn';
+                turnInfo = 'It"s player ' + whoseTurn + ' turn';
                 console.log('Player 2 turn ' + isMyTurn);
             }
-            updateTurn();
+            turnsUpdate();
         }
     });
-    function cb() {
-        playMove(this);
-    } 
-    // boardSquares event handler 
-    for (var i = 0; i < squares.length; i += 1) {
-        // add event listener to each square
-        squares[i].addEventListener('click', cb);
+    // draw move on board
+    function renderMove(sqElem, position, board) {
+        if (whoseTurn === 1) {
+            moves += 1;
+            board[position] = "X";
+            sqElem.innerHTML = board[position];
+        } else {
+            moves += 1;
+            boardArr[position] = "O";
+            sqElem.innerHTML = board[position];
+        }
     }
-    // addPLayer function
-    function addPlayer2(userVal) {
-        document.getElementById('player').innerHTML = userVal;
-    }
-    // update turns
-    function updateTurn() {
-        turnInfo = "It's Player1's turn";
-        statusElem.innerHTML = turnInfo;
+    // check if square can be clicked
+    function isSquareAvailable(board, position) {
+        return board[position] === undefined;
     }
     // ensure that game started, it's the correct player turn
     // and that square is available
@@ -104,23 +112,29 @@ Author: Khalid Omar Ali
         // set square value state
         var sqVal = sqElem.innerHTML,
             // get position of clicked square
-            square  = sqElem.getAttribute("data-position"); 
-        if (startGame && gameOver !== true && isMyTurn && sqVal === '') {
+            sqPos = sqElem.getAttribute("data-position");
+        if (startGame && isMyTurn && sqVal === '' && isSquareAvailable(boardArr, sqPos)) {
             // draw move
-            renderMove(sqElem);
-            // emit move event with user and square values
+            renderMove(sqElem, sqPos, boardArr);
+            // emit move event with user and square position
             socket.emit("playMove", {
                 user: user,
-                square: square
+                board: boardArr,
+                position: sqPos
             });
         }
     }
-    // draw move on board
-    function renderMove(sqElem) {
-        if (takeTurn === 1) {
-            sqElem.innerHTML = "X";
-        } else {
-            sqElem.innerHTML = "O";
-        }
+    // avoid creating callback function inside loops
+    function cb() {
+        playMove(this);
     }
+    // boardSquares event handler 
+    for (var i = 0; i < squares.length; i += 1) {
+        // add event listener to each square
+        squares[i].addEventListener('click', cb);
+    }
+    // decide who won
+    socket.on('playMove', function(data) {
+
+    });
 })();

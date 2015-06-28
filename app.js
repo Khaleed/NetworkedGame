@@ -7,7 +7,7 @@ CLIENT/SERVER MODEL:
 Each player is a client and all clients communicate with server
 
 PLAYER JOINS: 
-Each player exists as an object on the server
+Each player exists as an object (with socket.id key) on the server
 When a player logs on, they should be updated with the status
 of each player on the server
 Each player must join a room/lobby to ensure they start from
@@ -71,7 +71,7 @@ about Game Networking
 		console.log('socket.io connection established'.red);
 		// get elements
 		var roomName;
-		var takeTurn;
+		var whoseTurn;
 		var start;
 		var gameOver = false;
 		var xTurn = true;
@@ -86,6 +86,10 @@ about Game Networking
 			[0, 4, 8],
 			[2, 4, 6]
 		];
+		var draw;
+		var won;
+		var whoWon;
+		var moves;
 		// join the socket's room
 		// once client joins, we get a ping
 		socket.on('room', function(room) {
@@ -120,12 +124,33 @@ about Game Networking
 				// emit to room that game can start
 				io.to(roomName).emit('startGame', true);
 				// emit to room that player 1 goes first
-				io.to(roomName).emit('takeTurn', 1);
+				io.to(roomName).emit('whoseTurn', 1);
 			}
 		});
-		// render game moves
-
-
+		// listen for playMove and manipulate data obj
+		// consisting of user & square
+		socket.on("playMove", function(data) {
+			var i;
+			if (data.user === 1) {
+				data.board[data.position] = 'X';
+				console.log('player1 move'.green + data.board);
+				io.to(roomName).emit('player1Move', data.board);
+			} else {
+				data.board[data.position] = 'O';
+				console.log('player2 move'.green + data.board);
+				io.to(roomName).emit('player2Move', data.board);
+			}
+			// check win state
+			for (i = 0; i < winCombo.length; i += 1) {
+				// check for 8 wiinning combos - 3 rows, 3 columns, and 2 diagonals
+				if (boardArr[winCombo[i][0]] === boardArr[winCombo[i][1]] && boardArr[winCombo[i][1]] ===
+					boardArr[winCombo[i][2]] && boardArr[winCombo[i][1]] === undefined) {
+					io.to(roomName).emit('win', true);
+				}
+			}
+			// Emit to opponent
+			io.to(roomName).emit('update', data);
+		});
 	});
 	// listening event handler for server
 	server.on('listening', function() {

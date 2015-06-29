@@ -142,7 +142,7 @@ Author: Khalid Omar Ali
     }
     // find where other player went and place piece on board
     socket.on('updateGame', function(data) {
-        // if it's not
+        // if it's not my turn
         if (!isMyTurn) {
             if (data.player === 1) {
                 data.board[data.position] = 'X';

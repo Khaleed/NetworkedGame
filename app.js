@@ -127,26 +127,7 @@ about Game Networking
 			}
 		});
 		// listen for playMove and manipulate data obj
-		// consisting of user & square
-		socket.on("playMove", function(data) {
-			var i;
-			// check win state
-			for (i = 0; i < winCombo.length; i += 1) {
-				// check for 8 wiinning combos - 3 rows, 3 columns, and 2 diagonals
-				if (data.board[winCombo[i][0]] === data.board[winCombo[i][1]] && data.board[winCombo[i][1]] ===
-					data.board[winCombo[i][2]] && data.board[winCombo[i][1]] === undefined) {
-					io.to(roomName).emit('win', true);
-				}
-			}
-			// Emit to opponent
-			io.to(roomName).emit('updateGame', data);
-			// Change taking turns
-			if (data.player === 1) {
-				io.to(roomName).emit('whoseTurn', 2);
-			} else {
-				io.to(roomName).emit('whoseTurn', 1);
-			}
-		});
+		
 	});
 	// listening event handler for server
 	server.on('listening', function() {

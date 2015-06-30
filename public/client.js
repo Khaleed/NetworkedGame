@@ -18,14 +18,14 @@ Author: Khalid Omar Ali
         turnInfo,
         startGame,
         moves = 0,
-        gameOver = false,
+        won = false,
+        draw = false,
         resetElem = document.getElementById('start-button'),
         boardElem = document.getElementById('game-board'),
         resultElem = document.getElementById('results'),
         statusElem = document.getElementById('status'),
         squares = document.getElementsByTagName('input'),
         xTurn = true,
-        winStatus,
         boardArr = [],
         winCombo = [
             [0, 1, 2],
@@ -65,6 +65,7 @@ Author: Khalid Omar Ali
     // listen for start event from server and update turn status
     socket.on('startGame', function(data) {
         startGame = data;
+        console.log("game started: " + startGame);
         if (startGame === true) {
             // side-effect of player1 turn
             turnsUpdate();
@@ -75,7 +76,7 @@ Author: Khalid Omar Ali
         // player 1 goes first
         whoseTurn = data;
         // as long as the game is not over
-        if (gameOver !== true) {
+        if (won !== true && draw !== true) {
             // and whoseTurn is equal to player 1
             if (whoseTurn === user) {
                 isMyTurn = true;
@@ -84,11 +85,27 @@ Author: Khalid Omar Ali
             } else {
                 isMyTurn = false;
                 turnInfo = 'It"s player ' + whoseTurn + ' turn';
-                console.log('Player 2 turn ' + isMyTurn);
+                console.log('Player 2 turn: ' + isMyTurn);
             }
             turnsUpdate();
         }
     });
+    // 
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /*
+
     // draw move on board
     function renderMove(sqElem, position, board) {
         if (whoseTurn === 1) {
@@ -117,7 +134,7 @@ Author: Khalid Omar Ali
             // draw move
             renderMove(sqElem, sqPos, boardArr);
             // emit move event with user and square position
-            socket.emit("playMove", {
+            socket.emit("move", {
                 user: user,
                 board: boardArr,
                 position: sqPos
@@ -152,4 +169,7 @@ Author: Khalid Omar Ali
             placePiece(data.board, data.position);
         }
     });
+
+*/
+
 })();

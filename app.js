@@ -113,6 +113,7 @@ about Game Networking
 				// emit to player1 socket
 				// each socket automatically assigned an ID
 				console.log("what is socket 1's id ".red + socket.id);
+				// why socket.id?
 				io.to(socket.id).emit('player', 1);
 			}
 			// start game when 2 players are connected

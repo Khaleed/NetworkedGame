@@ -36,25 +36,17 @@ Author: Khalid Omar Ali
             [0, 4, 8],
             [2, 4, 6]
         ];
-    // once connected emit room event
+    // emit room event once connected to socket.io
     socket.on('connect', function() {
         socket.emit('room', room);
     });
-    // addPLayer function
-    function addPlayer2(userVal) {
-        document.getElementById('player').innerHTML = userVal;
-    }
-    // update turns
-    function statusUpdate(status) {
-        statusElem.innerHTML = status;
-    }
     // listen for player event and add players
     socket.on('player', function(data) {
         user = data;
+        console.log("player event data: " + data);
         if (user === 1) {
             console.log('This is player ' + user + '.');
             statusUpdate("Share URL http://localhost:3000/tictactoe/" + room);
-            // share URL UI - implement later
         } else if (user === 2) {
             console.log('This is player ' + user + '.');
             addPlayer2('Player 2');
@@ -63,15 +55,15 @@ Author: Khalid Omar Ali
     // listen for start event from server and update turn status
     socket.on('startGame', function(data) {
         startGame = data;
-        console.log("game started: " + startGame);
+        console.log("game started boolean: " + startGame);
         if (startGame === true) {
-            // side-effect of player1 turn
             statusUpdate("Player1's turn");
         }
     });
     // listen for whoseTurn event from server and let players take turns
     socket.on('whoseTurn', function(data) {
-        var statusVal;
+        console.log("whoseTurn data: " + data);
+        var turnStatus;
         // player 1 goes first
         whoseTurn = data;
         // as long as the game is not over
@@ -79,29 +71,21 @@ Author: Khalid Omar Ali
             // and whoseTurn is equal to player 1
             if (whoseTurn === user) {
                 isMyTurn = true;
-                statusVal = 'Your turn';
+                turnStatus = 'Your turn';
                 console.log('Player 1 turn : ' + isMyTurn);
             } else {
                 isMyTurn = false;
-                statusVal = 'It"s player ' + whoseTurn + ' turn';
+                turnStatus = 'It"s player ' + whoseTurn + ' turn';
                 console.log('Player 2 turn: ' + isMyTurn);
             }
-            statusUpdate(statusVal);
+            statusUpdate(turnStatus);
         }
     });
-    // helper function to place X or O on board
-    function placePiece(board, position) {
-        var i;
-        for(i = 0; i < squares.length; i += 1) {
-            squares[i].innerHTML = board[position];
-        }
-        console.log(data);
-    }
     // find where other player went and place piece on board
     socket.on('updateGame', function(data) {
         // if it's not my turn
         if (!isMyTurn) {
-            if (data.player === 1) {
+            if (data.user === 1) {
                 data.board[data.position] = 'X';
             } else {
                 data.board[data.position] = 'O';
@@ -109,13 +93,20 @@ Author: Khalid Omar Ali
             placePiece(data.board, data.position);
         }
     });
-    socket.on('winStatus', function(){
-        winStatus = true;
-        if(data.player === 1 || data.player === 2) {
-
+    // set of helper functions:-  
+    function addPlayer2(userVal) {
+        document.getElementById('player').innerHTML = userVal;
+    }
+    function statusUpdate(status) {
+        statusElem.innerHTML = status;
+    }
+    function placePiece(board, position) {
+        var i;
+        for (i = 0; i < squares.length; i += 1) {
+            squares[i].innerHTML = board[position];
         }
-    });
-    // draw move on board
+        console.log(data);
+    }
     function renderMove(sqElem, position, board) {
         if (whoseTurn === 1) {
             moves += 1;
@@ -127,17 +118,13 @@ Author: Khalid Omar Ali
             sqElem.innerHTML = board[position];
         }
     }
-    // check if square can be clicked
     function isSquareAvailable(board, position) {
         return board[position] === undefined;
     }
-    // ensure that game started, it's the correct player turn
-    // and that square is available
-    // only then select the square and emit "move" event to server 
     function playMove(sqElem) {
-        // set square value state
+        // get square value
         var sqVal = sqElem.innerHTML,
-            // get position of clicked square
+            // get position of a clicked square
             sqPos = sqElem.getAttribute("data-position");
         if (startGame && isMyTurn && sqVal === '' && isSquareAvailable(boardArr, sqPos)) {
             // draw move
@@ -159,5 +146,4 @@ Author: Khalid Omar Ali
         // add event listener to each square
         squares[i].addEventListener('click', cb);
     }
-
 })();

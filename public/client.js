@@ -133,6 +133,7 @@ Author: Khalid Omar Ali
             socket.emit("move", {
                 user: user,
                 board: boardArr,
+                square: sqElem,
                 position: sqPos
             });
         }

@@ -23,7 +23,7 @@ Author: Khalid Omar Ali
         boardElem = document.getElementById('game-board'),
         resultElem = document.getElementById('results'),
         statusElem = document.getElementById('status'),
-        squares = document.getElementsByTagName('button'),
+        squares = document.getElementsByTagName('td'),
         xTurn = true,
         boardArr = [],
         winCombo = [
@@ -81,8 +81,14 @@ Author: Khalid Omar Ali
             statusUpdate(turnStatus);
         }
     });
-    // find where other player went and place piece on board
+    // Find where other player went and place piece on board
+    // This has caused max call stack to be exceeded - Potential Async loop:-
+    // that is to say a for loop that runs each iteration one at a time
+    // but those iterations may contain non-blocking logic that must stop
+    // the loop until the async action resumes
     socket.on('updateGame', function(data) {
+        console.log("What's in updateGame event data: " + data);
+        var i;
         // if it's not my turn
         if (!isMyTurn) {
             if (data.user === 1) {
@@ -90,23 +96,23 @@ Author: Khalid Omar Ali
             } else {
                 data.board[data.position] = 'O';
             }
-            placePiece(data.board, data.position);
+            // hypothesis: is this what's causing the maximum call stack?
+            for (i = 0; i < squares.length; i += 1) {
+                if (Number(squares[i].getAttribute('id').replace('btn-', '')) === data.square) {
+                    squares[i].innerHTML = data.board[data.position];               
+                }
+            }
         }
     });
     // set of helper functions:-  
     function addPlayer2(userVal) {
         document.getElementById('player').innerHTML = userVal;
     }
+
     function statusUpdate(status) {
         statusElem.innerHTML = status;
     }
-    function placePiece(board, position) {
-        var i;
-        for (i = 0; i < squares.length; i += 1) {
-            squares[i].innerHTML = board[position];
-        }
-        console.log(data);
-    }
+
     function renderMove(sqElem, position, board) {
         if (whoseTurn === 1) {
             moves += 1;
@@ -118,22 +124,25 @@ Author: Khalid Omar Ali
             sqElem.innerHTML = board[position];
         }
     }
+
     function isSquareAvailable(board, position) {
         return board[position] === undefined;
     }
+
     function playMove(sqElem) {
         // get square value
         var sqVal = sqElem.innerHTML,
             // get position of a clicked square
-            sqPos = sqElem.getAttribute("data-position");
+            sqPos = sqElem.getAttribute("data-position"),
+            square = Number(sqElem.getAttribute('id').replace('btn-', ''));
         if (startGame && isMyTurn && sqVal === '' && isSquareAvailable(boardArr, sqPos)) {
             // draw move
             renderMove(sqElem, sqPos, boardArr);
-            // emit move event with user and square position
+            // emit move event with user, board, and square position
             socket.emit("move", {
                 user: user,
                 board: boardArr,
-                square: sqElem,
+                square: square,
                 position: sqPos
             });
         }

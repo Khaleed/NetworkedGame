@@ -108,10 +108,7 @@ Author: Khalid Omar Ali
     }
     // helper function to place X or O on board
     function placePiece(board, position) {
-        var i;
-        for (i = 0; i < squares.length; i += 1) {
-            squares[i].innerHTML = board[position];
-        }
+            squares[position].innerHTML = board[position];
         console.log(data);
     }
 

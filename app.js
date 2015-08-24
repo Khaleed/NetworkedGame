@@ -127,7 +127,7 @@ about Game Networking
 		});
 		// listen for move and manipulate data obj
 		socket.on('move', function(data) {
-			console.log("what's inside data from move event: " + data);
+			console.log("what's in the board: " + data.board[data.position]);
 			// emit move to room and update the game
 			io.to(roomName).emit('updateGame', data);
 			// change whoseTurn

@@ -1,8 +1,6 @@
 /*
-
 Client-Side JavaScript for Multi-PLayer TicTacToe
 Author: Khalid Omar Ali
-
 */
 
 (function() {
@@ -23,7 +21,7 @@ Author: Khalid Omar Ali
         boardElem = document.getElementById('game-board'),
         resultElem = document.getElementById('results'),
         statusElem = document.getElementById('status'),
-        squares = document.getElementsByTagName('td'),
+        squares = document.getElementsByTagName('button'),
         xTurn = true,
         boardArr = [],
         winCombo = [
@@ -96,12 +94,8 @@ Author: Khalid Omar Ali
             } else {
                 data.board[data.position] = 'O';
             }
-            // hypothesis: is this what's causing the maximum call stack?
-            for (i = 0; i < squares.length; i += 1) {
-                if (Number(squares[i].getAttribute('id').replace('btn-', '')) === data.square) {
-                    squares[i].innerHTML = data.board[data.position];               
-                }
-            }
+            // 
+            placePiece(data.board, data.position);
         }
     });
     // set of helper functions:-  
@@ -111,6 +105,14 @@ Author: Khalid Omar Ali
 
     function statusUpdate(status) {
         statusElem.innerHTML = status;
+    }
+    // helper function to place X or O on board
+    function placePiece(board, position) {
+        var i;
+        for (i = 0; i < squares.length; i += 1) {
+            squares[i].innerHTML = board[position];
+        }
+        console.log(data);
     }
 
     function renderMove(sqElem, position, board) {
@@ -133,8 +135,7 @@ Author: Khalid Omar Ali
         // get square value
         var sqVal = sqElem.innerHTML,
             // get position of a clicked square
-            sqPos = sqElem.getAttribute("data-position"),
-            square = Number(sqElem.getAttribute('id').replace('btn-', ''));
+            sqPos = sqElem.getAttribute("data-position");
         if (startGame && isMyTurn && sqVal === '' && isSquareAvailable(boardArr, sqPos)) {
             // draw move
             renderMove(sqElem, sqPos, boardArr);
@@ -142,9 +143,9 @@ Author: Khalid Omar Ali
             socket.emit("move", {
                 user: user,
                 board: boardArr,
-                square: square,
                 position: sqPos
             });
+            console.log("what's in boardArr: " + boardArr[sqPos]);
         }
     }
     // avoid creating callback function inside loops

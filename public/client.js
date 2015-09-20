@@ -19,7 +19,6 @@ Author: Khalid Omar Ali
         draw = false,
         resetElem = document.getElementById('start-button'),
         boardElem = document.getElementById('game-board'),
-        resultElem = document.getElementById('results'),
         statusElem = document.getElementById('status'),
         squares = document.getElementsByTagName('button'),
         xTurn = true,
@@ -94,8 +93,13 @@ Author: Khalid Omar Ali
             } else {
                 data.board[data.position] = 'O';
             }
-            // 
+            // draw piece
             placePiece(data.board, data.position);
+        }
+    });
+    socket.on('winStatus', function(data){
+        if(data === 'draw') {
+            alert('Draw game');
         }
     });
     // set of helper functions:-  
@@ -139,9 +143,10 @@ Author: Khalid Omar Ali
             socket.emit("move", {
                 user: user,
                 board: boardArr,
-                position: sqPos
+                position: sqPos,
+                moves: moves
             });
-            console.log("what's in boardArr: " + boardArr[sqPos]);
+            console.log("how many valid moves" + moves);
         }
     }
     // avoid creating callback function inside loops

@@ -2,7 +2,7 @@
   "name": "TicTacToe-Human",
   "version": "1.0.0",
   "description": "TicTacToe 2 Player Game",
-  "main": "tictactoe.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -19,6 +19,7 @@
   "dependencies": {
     "express": "^4.12.3",
     "randomstring": "^1.0.5",
-    "socket.io": "^1.3.5"
+    "socket.io": "^1.3.5",
+    "colors": "~1.1.2"
   }
 }

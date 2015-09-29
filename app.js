@@ -67,6 +67,7 @@ about Game Networking
 		var start;
 		var gameOver = false;
 		var xTurn = true;
+		var board = [];
 		var winCombo = [
 			[0, 1, 2],
 			[3, 4, 5],
@@ -77,10 +78,10 @@ about Game Networking
 			[0, 4, 8],
 			[2, 4, 6]
 		];
-		var draw;
-		var won;
-		var whoWon;
 		var moves;
+		var clientsNo;
+		var player1Id;
+		var player2Id;
 		// join the socket's room
 		// once client joins, we get a ping
 		socket.on('room', function(room) {
@@ -88,7 +89,6 @@ about Game Networking
 			socket.join(room);
 			// get elements to manipulate with the callback 
 			var gameLobby;
-			var clientsNo;
 			var nameSpace = '/';
 			roomName = room;
 			console.log('connected to room: '.grey + roomName);
@@ -119,7 +119,12 @@ about Game Networking
 		});
 		// listen for move and manipulate data obj
 		socket.on('move', function(data) {
-			console.log("what's in the board: " + data.board[data.position]);
+			// update player moves
+			if (clientsNo === 1) {
+				board[data.position] = "X";
+			} else if(clientsNo === 2) {
+				board[data.position] = "O";
+			}
 			// emit move to room and update the game
 			io.to(roomName).emit('updateGame', data);
 			// change whoseTurn
@@ -129,15 +134,19 @@ about Game Networking
 				io.to(roomName).emit('whoseTurn', 1);
 			}
 			// emit event when game is won
-			for (var i = 0; len = i < winCombo.length; i < len; i += 1) {
-				if (data.board[winCombo[i][0]] === data.board[winCombo[i][1]] && data.board[winCombo[i][1]] ===
-					data.board[winCombo[i][2]] && data.board[winCombo[i][1]] !== undefined) {
-					io.to(roomName).emit('winStatus', 'won');
+			for (var i = 0; i < winCombo.length; i += 1) {
+				if (board[winCombo[i][0]] === board[winCombo[i][1]] && board[winCombo[i][1]] ===
+					board[winCombo[i][2]] && board[winCombo[i][1]] !== undefined) {
+					io.to(roomName).emit('winStatus', {won: true, player: data.user});
+					// re-initialise board
+					board = [];
 				}
 			}
-			// emit event when game in a draw
+			// emit event when game is a draw
 			if (data.moves === 9) {
 				io.to(roomName).emit('winStatus', 'draw');
+				// re-initialise board
+				board = [];
 			}
 		});
 	});

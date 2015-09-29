@@ -7,7 +7,7 @@ Author: Khalid Omar Ali
 
     'use strict';
     // connect to socket.io
-    var socket = io.connect('http://localhost:3000'),
+    var socket = io.connect('http://192.168.33.10:3000/'),
         // create game room
         room = window.location.pathname.split('/').pop(),
         user,
@@ -20,7 +20,7 @@ Author: Khalid Omar Ali
         resetElem = document.getElementById('start-button'),
         boardElem = document.getElementById('game-board'),
         statusElem = document.getElementById('status'),
-        squares = document.getElementsByTagName('button'),
+        squares = document.getElementsByClassName('square'),
         xTurn = true,
         boardArr = [],
         winCombo = [
@@ -43,12 +43,12 @@ Author: Khalid Omar Ali
         console.log("player event data: " + data);
         if (user === 1) {
             console.log('This is player ' + user + '.');
-            statusUpdate("Share URL http://localhost:3000/tictactoe/" + room);
+            statusUpdate("Share URL http://192.168.33.10:3000/tictactoe" + room);
         } else if (user === 2) {
             console.log('This is player ' + user + '.');
             addPlayer2('Player 2');
         }
-    });
+    
     // listen for start event from server and update turn status
     socket.on('startGame', function(data) {
         startGame = data;
@@ -79,10 +79,6 @@ Author: Khalid Omar Ali
         }
     });
     // Find where other player went and place piece on board
-    // This has caused max call stack to be exceeded - Potential Async loop:-
-    // that is to say a for loop that runs each iteration one at a time
-    // but those iterations may contain non-blocking logic that must stop
-    // the loop until the async action resumes
     socket.on('updateGame', function(data) {
         console.log("What's in updateGame event data: " + data);
         var i;
@@ -97,9 +93,18 @@ Author: Khalid Omar Ali
             placePiece(data.board, data.position);
         }
     });
-    socket.on('winStatus', function(data){
-        if(data === 'draw') {
+    socket.on('winStatus', function(data) {
+        console.log("winStatus shows the outcome: " + data.won);
+        if (data === 'draw') {
             alert('Draw game');
+        } else if (data.won === "won") {
+            if (data.player === 1) {
+                alert("X wins");
+                resetGame();
+            } else {
+                alert("O wins");
+                resetGame();
+            }
         }
     });
     // set of helper functions:-  
@@ -131,6 +136,18 @@ Author: Khalid Omar Ali
         return board[position] === undefined;
     }
 
+    function resetGame() {
+        var i, j;
+        // clear the values stored in the board
+        for (i = 0; i < boardArr.length; i += 1) {
+            boardArr[i] = undefined;
+        }
+        // clear squares on board
+        for (j = 0; j < squares.length; j += 1) {
+            squares[j].innerHTML = "";
+        }
+    }
+    // playmove
     function playMove(sqElem) {
         // get square value
         var sqVal = sqElem.innerHTML,
@@ -139,10 +156,10 @@ Author: Khalid Omar Ali
         if (startGame && isMyTurn && sqVal === '' && isSquareAvailable(boardArr, sqPos)) {
             // draw move
             renderMove(sqElem, sqPos, boardArr);
+            console.log("what is in board array?: " + boardArr);
             // emit move event with user, board, and square position
             socket.emit("move", {
                 user: user,
-                board: boardArr,
                 position: sqPos,
                 moves: moves
             });
@@ -158,4 +175,8 @@ Author: Khalid Omar Ali
         // add event listener to each square
         squares[i].addEventListener('click', cb);
     }
+    // resetGame event handler
+    resetElem.addEventListener('click', function() {
+        resetGame();
+    });
 })();

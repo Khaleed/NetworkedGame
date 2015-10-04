@@ -5,7 +5,8 @@
     <meta charset="utf-8">
     <title>Tic-Tac-Toe</title>
     <!-- stylesheet is a static file -->
-    <link rel="stylesheet" type="text/css" href="/style.css">
+    <link rel="stylesheet" type="text/css" href="/public/style.css">
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Open+Sans">
 </head>
 
 <body>
@@ -50,6 +51,9 @@
                     </tr>
                 </tbody>
             </table>
+            <div id="button-wrapper">
+                <button id="start-button">Re-Start</button>
+            </div>
             <br>
             <div id="player"> Player 1 </div>
             <br>
@@ -58,7 +62,7 @@
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <!-- client.js is a static file -->
-    <script src="/client.js"></script>
+    <script src="/public/client.js"></script>
 </body>
 
 </html>

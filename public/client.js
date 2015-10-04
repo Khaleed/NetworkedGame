@@ -2,30 +2,19 @@
 Client-Side JavaScript for Multi-PLayer TicTacToe
 Author: Khalid Omar Ali
 */
+'use strict';
 
 (function() {
-
-    'use strict';
-
-    var express = require('express');
-    // instance of express
-    var app = express();
-    // create a HTTP server
-    var server = require('http').Server(app);
-    // listen to TCP port in the env or 3000
-    var port = process.env.port || 3000;
-    var randomString = require('randomstring');
-    // routes - when a get request is made
-    // req and res objects extend Node HTTP objects
-    app.get('/', function(req, res) {
-        // redirect client to game room (using dynamic routing)
-        var id = randomString.generate(7);
-        res.redirect('/tictactoe/' + id);
-    });
-    // static route
-    app.use();
-
-    server.listen(function() {
-        console.log('listening on port ' + port);
-    });
+    // grab main elements
+    var socket = io.connect('http://192.168.33.10:3000/'),
+        board = document.getElementById('game-board'),
+        squareElem = document.getElementsByClassName('square'),
+        statusElem = document.getElementById('status'),
+        room = window.location.pathname.split('/').pop();
+        console.log(room);
+        // emit room event to server
+        socket.once('connect', function() {
+            socket.emit('room', room);
+        });
+        
 }());

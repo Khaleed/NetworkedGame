@@ -13,22 +13,18 @@ Author: Khalid Omar Ali
         squareElem = document.getElementsByClassName('square'),
         room = window.location.pathname.split('/').pop(),
         player,
-        whoseTurn,
         startGame;
-    console.log(room);
     // emit room event to server
     socket.once('connect', function() {
         socket.emit('room', room);
     });
-    // recieve from server status event and add players
+    // receive from server status event and add players
     socket.on('status', function(data) {
         player = data;
         console.log("player event data: " + data);
         if (player === "p1") {
-            console.log('This is player ' + player + '.');
             statusUpdate("Share URL:  192.168.33.10:3000/tictactoe/" + room);
         } else if (player === "p2") {
-            console.log('This is player ' + player + '.');
             addPlayer2('Player 2');
         }
     });
@@ -57,19 +53,16 @@ Author: Khalid Omar Ali
     });
     // playmove
     function playMove(sqElem) {
-        // get square value
-        var sqVal = sqElem.innerHTML;
         // get position of a clicked square
-        sqPos = sqElem.getAttribute('data-position');
+        var sqPos = sqElem.getAttribute('data-position');
         socket.emit("move", {
             player: player,
             position: sqPos
         });
-        console.log("how many valid moves" + moves);
     }
-    // event handlers
+    // game board event handler
     boardElem.addEventListener('click', function(e) {
-        if (e.target.classList.className('square')) {
+        if (e.target.classList.contains('square')) {
             playmove(e.target);
         }
     });

@@ -52,32 +52,51 @@ app.use('/public', express.static('public'));
 io.on('connection', function(socket) {
 	// states
 	var clientNo;
+	var won = false;
+	var draw = false;
+	var roomName;
+	var board = [];
+	var winCombo = [
+		[0, 1, 2],
+		[3, 4, 5],
+		[6, 7, 8],
+		[0, 3, 6],
+		[1, 4, 7],
+		[2, 5, 8],
+		[0, 4, 8],
+		[2, 4, 6]
+	];
+	var moves;
+	var player1Id;
+	var player2Id;
 	socket.on('room', function(room) {
 		console.log("what is in room event data: " + room)
-		var roomName = room;
-	    var gameLobby;
+		var gameLobby;
+		roomName = room;
 		socket.join(room);
 		// list all clients connected to a room
 		gameLobby = io.nsps['/'].adapter.rooms[roomName];
 		console.log("what is in game lobby: ".red + gameLobby);
 		// get number of clients in a room
 		clientNo = Object.keys(gameLobby).length;
+		console.log("how many clients logged on " + clientNo);
 		if (clientNo === 1) {
 			// hey client1, you are player 1
-			io.to(socket.id).emit('player', 1);
+			io.to(socket.id).emit('status', "p1");
 		} else if (clientNo === 2) {
-			// hey client2, are you are player 2
-			io.to(socket.id).emit('player', 2);
+			debugger;
+			// hey client2, you are player 2
+			io.to(socket.id).emit('status', "p2");
 			// game can now begin
 			io.to(roomName).emit('startGame', true);
-			// and player 1 goes first
-			io.to(roomName).emit('whoseTurn', 1);
+		}
+		if (won !== true && draw !== true) {
+			// player 1 always goes first
+			io.to(roomName).emit('whoseTurn',  "p1");
 		}
 	});
+	// listen for move event from client and handle game logic
 });
-
-
-
 server.listen(port, function() {
 	console.log('listening on port ' + port);
 });

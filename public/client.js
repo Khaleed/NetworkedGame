@@ -19,12 +19,12 @@ Author: Khalid Omar Ali
         socket.emit('room', room);
     });
     // receive from server status event and add players
-    socket.on('status', function(data) {
-        player = data;
+    socket.on('roomStatus', function(data) {
+        player = data.player;
         console.log("player event data: " + data);
-        if (player === "p1") {
+        if (player === 1) {
             statusUpdate("Share URL:  192.168.33.10:3000/tictactoe/" + room);
-        } else if (player === "p2") {
+        } else if (player === 2) {
             addPlayer2('Player 2');
         }
     });

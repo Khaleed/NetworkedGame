@@ -42,6 +42,9 @@ var port = process.env.port || 3000;
 var randomString = require('randomstring');
 // use colors for debugging
 var colors = require('colors');
+// globals
+// var allGames = [];
+var playerQue = [];
 var WIN_COMBO = [
 	[0, 1, 2],
 	[3, 4, 5],
@@ -53,7 +56,7 @@ var WIN_COMBO = [
 	[2, 4, 6]
 ];
 var MAX_PLAYERS = 2;
-var playerQue = [];
+// var playerQue = [];
 // routes - when a get request is made
 app.get('/', function(req, res) {
 	// redirect client to game room (using dynamic routing)
@@ -124,18 +127,10 @@ io.on('connection', function(socket) {
 		var gameLobby;
 		roomName = room;
 		socket.join(room);
-		// list all clients connected to a room
-		gameLobby = io.nsps['/'].adapter.rooms[roomName];
 		if (addPlayerToQue(socket.id)) {
 			console.log('adding player to que with socket id '.yellow);
-		}
-		else {
-			// clean up to remove disconnected clients
-			// listen for disconnect event on socket, find it's id
-			// and then remove it from the playerQue
-			// upon disconnection sockets leave all channels they were part of
-			playerQue.shift();
-			addPlayerToQue(socket.id);
+		} else {
+			console.log('error message on addPlayerToQue'.yellow);
 		}
 		// emit room status and start game events to client
 		if (getPlayerNoFromQue(socket.id) === 1) {
@@ -144,26 +139,29 @@ io.on('connection', function(socket) {
 				status: "wait"
 			});
 		} else if (getPlayerNoFromQue(socket.id) === 2) {
-			io.to(socket.id).emit('roomStatus', 2);
+			io.to(socket.id).emit('roomStatus', {player: 2});
 			io.to(roomName).emit('startGame', true);
 		}
 	});
-	// socket.on('move', function(data) {
-	// 	console.log("what is in" + data);
-	// });
-	// // handle taking turns
-	// if (won !== true && draw !== true) {
-	// 		if (clientNo === 1) {
-	// 			io.to(roomName).emit('whoseTurn',  "p1");
-	// 		} else if (clientNo === 2) {
-	// 			io.to(roomName).emit('whoseTurn', "p2");
-	// 		}
-	// 	}
+	socket.on('move', function(data) {
+		console.log("what is in" + data);
+	});
+	// handle taking turns
+	if (won !== true && draw !== true) {
+			if (clientNo === 1) {
+				io.to(roomName).emit('whoseTurn',  "p1");
+			} else if (clientNo === 2) {
+				io.to(roomName).emit('whoseTurn', "p2");
+			}
+		}
 	socket.on('disconnection', function() {
-		console.log('the id of disconnecting socket '.purple + socket.id);
-		socket.leave(room);
+		console.log('the id of disconnecting socket '.purple + socket.id);		socket.leave(room);
 	});
 });
 server.listen(port, function() {
 	console.log('listening on port ' + port);
 });
+
+
+// 
+

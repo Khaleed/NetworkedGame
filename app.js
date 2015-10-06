@@ -6,6 +6,7 @@ Author: Khalid Omar Ali
 CLIENT/SERVER MODEL:
 
 Each player is a client and all clients communicate with the server
+
 PLAYER JOINS: 
 
 Each player must join a room/lobby to ensure they start from 
@@ -43,8 +44,8 @@ var randomString = require('randomstring');
 // use colors for debugging
 var colors = require('colors');
 // globals
-// var allGames = [];
 var playerQue = [];
+var board = [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined];
 var WIN_COMBO = [
 	[0, 1, 2],
 	[3, 4, 5],
@@ -55,8 +56,11 @@ var WIN_COMBO = [
 	[0, 4, 8],
 	[2, 4, 6]
 ];
-var MAX_PLAYERS = 2;
-var playerQue = [];
+var whoseTurn = 1;
+// states
+var won = false;
+var draw = false;
+var roomName;
 // routes - when a get request is made
 app.get('/', function(req, res) {
 	// redirect client to game room (using dynamic routing)
@@ -114,13 +118,6 @@ function deletePlayerFromQue(id) {
 }
 // start using socket.io
 io.on('connection', function(socket) {
-	// states
-	var clientNo;
-	var won = false;
-	var draw = false;
-	var roomName;
-	var board = [];
-	var whoseTurn = 1;
 	socket.on('room', function(room) {
 		roomName = room;
 		socket.join(room);
@@ -137,7 +134,7 @@ io.on('connection', function(socket) {
 			});
 		} else if (getPlayerNoFromQue(socket.id) === 2) {
 			io.to(socket.id).emit('roomStatus', {
-				player: 2, 
+				player: 2,
 				status: "start"
 			});
 			io.to(roomName).emit('startGame', true);
@@ -157,6 +154,7 @@ io.on('connection', function(socket) {
 					player: 1,
 					data: data
 				});
+				console.log("whoseTurn now is " + whoseTurn);
 				io.to(roomName).emit('whoseTurn', 2);
 				whoseTurn = 2;
 			}

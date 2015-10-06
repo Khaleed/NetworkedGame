@@ -123,6 +123,7 @@ io.on('connection', function(socket) {
 	var moves;
 	var player1Id;
 	var player2Id;
+	var whoseTurn = 1;
 	socket.on('room', function(room) {
 		var gameLobby;
 		roomName = room;
@@ -139,23 +140,35 @@ io.on('connection', function(socket) {
 				status: "wait"
 			});
 		} else if (getPlayerNoFromQue(socket.id) === 2) {
-			io.to(socket.id).emit('roomStatus', {player: 2});
+			io.to(socket.id).emit('roomStatus', {
+				player: 2
+			});
 			io.to(roomName).emit('startGame', true);
+			io.to(roomName).emit('whoseTurn', 1);
 		}
 	});
 	socket.on('move', function(data) {
-		console.log("what is in" + data);
-	});
-	// handle taking turns
-	if (won !== true && draw !== true) {
-			if (clientNo === 1) {
-				io.to(roomName).emit('whoseTurn',  "p1");
-			} else if (clientNo === 2) {
-				io.to(roomName).emit('whoseTurn', "p2");
+		console.log('data obj from move event'.blue + data);
+		// assume player 1 goes first
+		if (whoseTurn === 1) {
+			// know that player is not lying
+			if (getPlayerNoFromQue(socket.id) === 1) {
+				// acknowledge the player's move
+				io.to(roomName).emit('move-acknowledged', {player: 1, data: data});
+				io.to(roomName).emit('whoseTurn', 2);
+				whoseTurn = 2;
+			}
+		} else {
+			if (getPlayerNoFromQue(socket.id) === 2) {
+				io.to(roomName).emit('move-acknowledged', {player: 2, data: data});
+				io.to(roomName).emit('whoseTurn', 1);
+				whoseTurn = 1;
 			}
 		}
+	});
 	socket.on('disconnection', function() {
-		console.log('the id of disconnecting socket '.purple + socket.id);		socket.leave(room);
+		console.log('the id of disconnecting socket '.purple + socket.id);
+		socket.leave(room);
 	});
 });
 server.listen(port, function() {
@@ -163,5 +176,4 @@ server.listen(port, function() {
 });
 
 
-// 
-
+//

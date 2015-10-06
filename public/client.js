@@ -13,6 +13,7 @@ Author: Khalid Omar Ali
         squareElem = document.getElementsByClassName('square'),
         room = window.location.pathname.split('/').pop(),
         player,
+        whoseTurn,
         startGame;
     // emit room event to server
     socket.once('connect', function() {
@@ -47,29 +48,35 @@ Author: Khalid Omar Ali
         if (whoseTurn === player) {
             turnStatus = 'Your Turn';
         } else {
-            turnStatus = 'It is ' + whoseTurn + ' turn';
+            turnStatus = 'It is player' + whoseTurn + ' turn';
         }
         statusUpdate(turnStatus);
+    });
+    socket.on('move-acknowledged', function(data) {
+        var response = data;
+        if (response.player === 1) {
+            document.getElementById('btn-' + response.data).innerHTML = "X";
+        } else {
+            document.getElementById('btn-' + response.data).innerHTML = "O";
+        }
     });
     // playmove
     function playMove(sqElem) {
         // get position of a clicked square
         var sqPos = sqElem.getAttribute('data-position');
-        socket.emit("move", {
-            player: player,
-            position: sqPos
-        });
+        socket.emit('move', sqPos);
     }
     // game board event handler
     boardElem.addEventListener('click', function(e) {
         if (e.target.classList.contains('square')) {
-            playmove(e.target);
+            playMove(e.target);
         }
     });
     // UI functions
     function statusUpdate(status) {
         document.getElementById('status').innerHTML = status;
     }
+
     function addPlayer2(name) {
         document.getElementById('player').innerHTML = name;
     }

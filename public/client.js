@@ -68,6 +68,11 @@ Author: Khalid Omar Ali
             statusUpdate('Player ' + data + ' won');
         }
     });
+    socket.on('resetGame', function(board) {
+        for (var i = 0, len = board.length; i < len; i += 1) {
+            squareElem[i].innerHTML = "";
+        }
+    });
     // playMove on the board
     function playMove(sqElem) {
         // get position of a clicked square

@@ -63,7 +63,6 @@ var won = false;
 var draw = false;
 var moves = 0;
 var game;
-var allGames = [];
 // routes - when a get request is made
 app.get('/', function(req, res) {
 	// redirect client to game room (using dynamic routing)
@@ -114,7 +113,6 @@ function deletePlayerFromQue(id) {
 		console.log("playerQue length equal to 0 in playerQue fn");
 		return false;
 	}
-	// hoisting occurs between functions
 	var index = playerQue.indexOf(id);
 	playerQue.splice(index, 1);
 	return true;
@@ -179,18 +177,30 @@ io.on('connection', function(socket) {
 			if (board[WIN_COMBO[i][0]] === board[WIN_COMBO[i][1]] && board[WIN_COMBO[i][1]] === board[WIN_COMBO[i][2]] && board[WIN_COMBO[i][1]] !== undefined) {
 				if (board[WIN_COMBO[i][1]] === 'X') {
 					io.to(game).emit('winStatus', 1);
+					board = [];
+					setTimeout(function() {
+						io.to(game).emit('resetGame', board);
+					}, 2000);
 				} else {
 					io.to(game).emit('winStatus', 2);
+					board = [];
+					setTimeout(function() {
+						io.to(game).emit('resetGame', board);
+					}, 2000);
 				}
 				won = true;
 			}
 		}
 		if (moves >= 9 && won === false) {
 			io.to(game).emit('winStatus', 'draw');
+			board = [];
+			setTimeout(function() {
+				io.to(game).emit('resetGame', board);
+			}, 2000);
 		}
 	});
 	socket.on('disconnection', function() {
-		// player leaves the room
+		// player leaves the game
 		socket.leave(game);
 		deletePlayerFromQue(socket.id);
 	});

@@ -4,15 +4,15 @@ Server Side JavaScript for TicTacToe
 Author: Khalid Omar Ali
 
 CLIENT/SERVER MODEL:
+
 Each player is a client and all clients communicate with the server
 PLAYER JOINS: 
-Each player exists as an object (with socket.id key) on the server
-When a player logs on, they should be updated with the status
-of each player on the server
-Each player must join a room/lobby to ensure they start from
-the same initial game state
+
+Each player must join a room/lobby to ensure they start from 
+the same initial game state. Each player that exists has socket.id key
 
 GAME STATE: 
+
 When a player clicks, the client emits position of move to the server
 Server updates state of each character in the 'world' and 
 replies back with a packet containing the state of the 
@@ -56,7 +56,7 @@ var WIN_COMBO = [
 	[2, 4, 6]
 ];
 var MAX_PLAYERS = 2;
-// var playerQue = [];
+var playerQue = [];
 // routes - when a get request is made
 app.get('/', function(req, res) {
 	// redirect client to game room (using dynamic routing)
@@ -120,12 +120,8 @@ io.on('connection', function(socket) {
 	var draw = false;
 	var roomName;
 	var board = [];
-	var moves;
-	var player1Id;
-	var player2Id;
 	var whoseTurn = 1;
 	socket.on('room', function(room) {
-		var gameLobby;
 		roomName = room;
 		socket.join(room);
 		if (addPlayerToQue(socket.id)) {
@@ -141,7 +137,8 @@ io.on('connection', function(socket) {
 			});
 		} else if (getPlayerNoFromQue(socket.id) === 2) {
 			io.to(socket.id).emit('roomStatus', {
-				player: 2
+				player: 2, 
+				status: "start"
 			});
 			io.to(roomName).emit('startGame', true);
 			io.to(roomName).emit('whoseTurn', 1);
@@ -150,21 +147,33 @@ io.on('connection', function(socket) {
 	socket.on('move', function(data) {
 		console.log('data obj from move event'.blue + data);
 		// assume player 1 goes first
+		console.log(whoseTurn === 1);
 		if (whoseTurn === 1) {
-			// know that player is not lying
+			console.log('Player 1 move');
+			// know that the player is not lying
 			if (getPlayerNoFromQue(socket.id) === 1) {
 				// acknowledge the player's move
-				io.to(roomName).emit('move-acknowledged', {player: 1, data: data});
+				io.to(roomName).emit('move-acknowledged', {
+					player: 1,
+					data: data
+				});
 				io.to(roomName).emit('whoseTurn', 2);
 				whoseTurn = 2;
 			}
 		} else {
+			console.log('Player 2 move');
 			if (getPlayerNoFromQue(socket.id) === 2) {
-				io.to(roomName).emit('move-acknowledged', {player: 2, data: data});
+				io.to(roomName).emit('move-acknowledged', {
+					player: 2,
+					data: data
+				});
 				io.to(roomName).emit('whoseTurn', 1);
 				whoseTurn = 1;
 			}
 		}
+		console.log('TURN - ' + whoseTurn)
+		console.log(socket.id)
+		console.log(getPlayerNoFromQue(socket.id))
 	});
 	socket.on('disconnection', function() {
 		console.log('the id of disconnecting socket '.purple + socket.id);

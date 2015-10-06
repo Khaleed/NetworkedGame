@@ -43,9 +43,10 @@ var port = process.env.port || 3000;
 var randomString = require('randomstring');
 // use colors for debugging
 var colors = require('colors');
-// globals
+// global game variables
 var playerQue = [];
-var board = [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined];
+var MAX_PLAYERS = 2;
+var board = [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined];
 var WIN_COMBO = [
 	[0, 1, 2],
 	[3, 4, 5],
@@ -60,7 +61,8 @@ var whoseTurn = 1;
 // states
 var won = false;
 var draw = false;
-var roomName;
+var game;
+var allGames = [];
 // routes - when a get request is made
 app.get('/', function(req, res) {
 	// redirect client to game room (using dynamic routing)
@@ -119,8 +121,8 @@ function deletePlayerFromQue(id) {
 // start using socket.io
 io.on('connection', function(socket) {
 	socket.on('room', function(room) {
-		roomName = room;
-		socket.join(room);
+		game = room;
+		socket.join(game);
 		if (addPlayerToQue(socket.id)) {
 			console.log('adding player to que with socket id '.yellow);
 		} else {
@@ -137,50 +139,55 @@ io.on('connection', function(socket) {
 				player: 2,
 				status: "start"
 			});
-			io.to(roomName).emit('startGame', true);
-			io.to(roomName).emit('whoseTurn', 1);
+			io.to(game).emit('startGame', true);
+			io.to(game).emit('whoseTurn', 1);
 		}
 	});
 	socket.on('move', function(data) {
-		console.log('data obj from move event'.blue + data);
 		// assume player 1 goes first
-		console.log(whoseTurn === 1);
 		if (whoseTurn === 1) {
-			console.log('Player 1 move');
 			// know that the player is not lying
 			if (getPlayerNoFromQue(socket.id) === 1) {
+				// store player1 values in game board
+				board[data] = 'X';
 				// acknowledge the player's move
-				io.to(roomName).emit('move-acknowledged', {
+				io.to(game).emit('move-acknowledged', {
 					player: 1,
 					data: data
 				});
-				console.log("whoseTurn now is " + whoseTurn);
-				io.to(roomName).emit('whoseTurn', 2);
+				io.to(game).emit('whoseTurn', 2);
 				whoseTurn = 2;
 			}
 		} else {
-			console.log('Player 2 move');
 			if (getPlayerNoFromQue(socket.id) === 2) {
-				io.to(roomName).emit('move-acknowledged', {
+				// store player1 values in game board
+				board[data] = 'O';
+				io.to(game).emit('move-acknowledged', {
 					player: 2,
 					data: data
 				});
-				io.to(roomName).emit('whoseTurn', 1);
+				io.to(game).emit('whoseTurn', 1);
 				whoseTurn = 1;
 			}
 		}
-		console.log('TURN - ' + whoseTurn)
-		console.log(socket.id)
-		console.log(getPlayerNoFromQue(socket.id))
+		// decide if game has been won
+		var len = WIN_COMBO.length;
+		for (var i = 0; i < len; i += 1) {
+			if (board[WIN_COMBO[i][0]] === board[WIN_COMBO[i][1]] && board[WIN_COMBO[i][1]] === board[WIN_COMBO[i][2]] && board[WIN_COMBO[i][1]] !== undefined) {
+				if (board[WIN_COMBO[i][1]] === 'X') {
+					io.to(game).emit('winStatus', 1);
+				} else {
+					io.to(game).emit('winStatus', 2);
+				}
+			}
+		}
 	});
 	socket.on('disconnection', function() {
-		console.log('the id of disconnecting socket '.purple + socket.id);
-		socket.leave(room);
+		// player leaves the room
+		socket.leave(game);
+		deletePlayerFromQue(socket.id);
 	});
 });
 server.listen(port, function() {
 	console.log('listening on port ' + port);
 });
-
-
-//

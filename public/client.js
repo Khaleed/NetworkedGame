@@ -7,51 +7,51 @@ Author: Khalid Omar Ali
 
     'use strict';
 
-    // grab main elements
+    // states
     var socket = io.connect('http://192.168.33.10:3000/'),
-        boardElem = document.getElementById('game-board'),
-        squareElem = document.getElementsByClassName('square'),
         room = window.location.pathname.split('/').pop(),
         player,
         whoseTurn,
         startGame;
+    // elements
+    var boardElem = document.getElementById('game-board'),
+        squareElem = document.getElementsByClassName('square');
     // emit room event to server
     socket.once('connect', function() {
         socket.emit('room', room);
     });
-    // receive from server status event and add players
+    // receive from server room status and add players
     socket.on('roomStatus', function(data) {
         player = data.player;
-        console.log("player event data: " + data);
         if (player === 1) {
-            statusUpdate("Share URL:  192.168.33.10:3000/tictactoe/" + room);
+            statusUpdate('Share URL:  192.168.33.10:3000/tictactoe/' + room);
         } else if (player === 2) {
             addPlayer2('Player 2');
         }
     });
     // receive from the server that the game can now start 
-    // and show clients that is it p1 turn
+    // and show clients that is it player1 turn
     socket.on('startGame', function(data) {
-        console.log("what's in the startGame data " + data);
+        console.log('what is in the startGame data ' + data);
         startGame = data;
         if (startGame === true) {
-            // in a new game, player 1 goes first
-            statusUpdate("p1's turn");
+            // player 1 always goes first
+            statusUpdate("Player1's turn");
         }
     });
-    // receive whoseTurn event from server and show
-    // whose turn it is
-    socket.on("whoseTurn", function(data) {
-        console.log("whoseTurn's data " + data);
+    // receive whoseTurn event from server and implement appropriate UI
+    socket.on('whoseTurn', function(data) {
+        console.log('whoseTurn data ' + data);
         var turnStatus;
         whoseTurn = data;
         if (whoseTurn === player) {
             turnStatus = 'Your Turn';
         } else {
-            turnStatus = 'It is player' + whoseTurn + ' turn';
+            turnStatus = 'It is player' + whoseTurn + 's turn';
         }
         statusUpdate(turnStatus);
     });
+    // listen for move-acknowledged event and draw moves on board
     socket.on('move-acknowledged', function(data) {
         var response = data;
         if (response.player === 1) {
@@ -60,10 +60,14 @@ Author: Khalid Omar Ali
             document.getElementById('btn-' + response.data).innerHTML = "O";
         }
     });
-    // playmove
+    socket.on('winStatus', function(data) {
+        statusUpdate('Player ' + data + ' won');
+    });
+    // playMove on the board
     function playMove(sqElem) {
         // get position of a clicked square
         var sqPos = sqElem.getAttribute('data-position');
+        // emit move event to server with position of the board
         socket.emit('move', sqPos);
     }
     // game board event handler
@@ -72,7 +76,7 @@ Author: Khalid Omar Ali
             playMove(e.target);
         }
     });
-    // UI functions
+    // UI helper functions
     function statusUpdate(status) {
         document.getElementById('status').innerHTML = status;
     }

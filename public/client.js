@@ -47,7 +47,7 @@ Author: Khalid Omar Ali
         if (whoseTurn === player) {
             turnStatus = 'Your Turn';
         } else {
-            turnStatus = 'It is player' + whoseTurn + 's turn';
+            turnStatus = 'It is player' + whoseTurn + ' s turn';
         }
         statusUpdate(turnStatus);
     });
@@ -61,7 +61,12 @@ Author: Khalid Omar Ali
         }
     });
     socket.on('winStatus', function(data) {
-        statusUpdate('Player ' + data + ' won');
+        console.log('winStatus is ' + data);
+        if (data === 'draw') {
+            statusUpdate("Draw - Cat's game!");
+        } else {
+            statusUpdate('Player ' + data + ' won');
+        }
     });
     // playMove on the board
     function playMove(sqElem) {

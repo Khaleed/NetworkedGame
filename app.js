@@ -61,6 +61,7 @@ var whoseTurn = 1;
 // states
 var won = false;
 var draw = false;
+var moves = 0;
 var game;
 var allGames = [];
 // routes - when a get request is made
@@ -148,7 +149,8 @@ io.on('connection', function(socket) {
 		if (whoseTurn === 1) {
 			// know that the player is not lying
 			if (getPlayerNoFromQue(socket.id) === 1) {
-				// store player1 values in game board
+				moves += 1;
+				// store player1 values in game board	
 				board[data] = 'X';
 				// acknowledge the player's move
 				io.to(game).emit('move-acknowledged', {
@@ -160,6 +162,7 @@ io.on('connection', function(socket) {
 			}
 		} else {
 			if (getPlayerNoFromQue(socket.id) === 2) {
+				moves += 1;
 				// store player1 values in game board
 				board[data] = 'O';
 				io.to(game).emit('move-acknowledged', {
@@ -179,7 +182,11 @@ io.on('connection', function(socket) {
 				} else {
 					io.to(game).emit('winStatus', 2);
 				}
+				won = true;
 			}
+		}
+		if (moves >= 9 && won === false) {
+			io.to(game).emit('winStatus', 'draw');
 		}
 	});
 	socket.on('disconnection', function() {

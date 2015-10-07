@@ -17,7 +17,7 @@ GAME STATE:
 When a player clicks, the client emits position of move to the server
 Server updates state of each character in the 'world' and 
 replies back with a packet containing the state of the 
-character of a player and the client simply draws. 
+character of a player and the client simply ties. 
 Clients simply incorporate the updates from server.
 Clients really only know how to update UI
 
@@ -60,7 +60,7 @@ var WIN_COMBO = [
 var whoseTurn = 0;
 // states
 var won = false;
-var draw = false;
+var tie = false;
 var moves = 0;
 var game;
 // routes - when a get request is made
@@ -76,7 +76,7 @@ app.get('/tictactoe/:id', function(req, res) {
 // static route - middleware to handle requests to static files
 app.use('/public', express.static('public'));
 // helper functions
-function resetBoard(board) {
+function resetBoard() {
 	board = new Array(9);
 }
 
@@ -123,6 +123,7 @@ function deletePlayerFromQue(id) {
 }
 
 function isMoveValid(board, pos) {
+	console.log('board: ',board,'pos: ',pos,' === ',board[pos] === undefined);
 	return board[pos] === undefined;
 }
 // start using socket.io
@@ -152,8 +153,11 @@ io.on('connection', function(socket) {
 	});
 	socket.on('move', function(data) {
 		// assume player 1 goes first
+		console.log('move event data1: ' + data);
 		if (whoseTurn === getPlayerNoFromQue(socket.id)) {
+			console.log('move event data2: ' + data);
 			if (isMoveValid(board, data)) {
+				console.log('move event data3: ' + data);
 				// store player1 & 2 values in game board	
 				board[data] = whoseTurn === 0 ? 'X' : 'O';
 				// acknowledge the player's move
@@ -180,19 +184,19 @@ io.on('connection', function(socket) {
 			}
 		}
 		if (moves >= 9 && won === false) {
-			io.to(game).emit('winStatus', 'draw');
-			draw = true;
+			io.to(game).emit('winStatus', 'tie');
+			tie = true;
 		}
 	});
 	// listen for restart from client and reset the game
 	socket.on('restart', function() {
-		console.log('is game won ' + won);
-		console.log('is game drawn ' + draw);
-		if (won === true || draw === true) {
+		if (won === true || tie === true) {
 			io.to(game).emit('resetGame');
 			won = false;
 			resetBoard();
-			draw = false;
+			tie = false;
+			moves = 0;
+			whoseTurn = 0;
 		}
 	});
 	socket.on('disconnection', function() {

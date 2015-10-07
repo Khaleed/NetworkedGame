@@ -46,7 +46,7 @@ var colors = require('colors');
 // global game variables
 var playerQue = [];
 var MAX_PLAYERS = 2;
-var board = [undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined];
+var board = Array(9);
 var WIN_COMBO = [
 	[0, 1, 2],
 	[3, 4, 5],
@@ -57,7 +57,7 @@ var WIN_COMBO = [
 	[0, 4, 8],
 	[2, 4, 6]
 ];
-var whoseTurn = 1;
+var whoseTurn = 0;
 // states
 var won = false;
 var draw = false;
@@ -76,6 +76,10 @@ app.get('/tictactoe/:id', function(req, res) {
 // static route - middleware to handle requests to static files
 app.use('/public', express.static('public'));
 // helper functions
+function resetBoard(board) {
+	board = Array(9);
+}
+
 function getPlayerNoFromQue(id) {
 	if (typeof id === "undefined") {
 		console.log("id undefined in getPlayerNoFromQue fn");
@@ -86,7 +90,7 @@ function getPlayerNoFromQue(id) {
 		console.log("negative index in getPlayerNoFromQue fn");
 		return false;
 	}
-	return index + 1;
+	return index;
 }
 
 function addPlayerToQue(id) {
@@ -117,12 +121,6 @@ function deletePlayerFromQue(id) {
 	playerQue.splice(index, 1);
 	return true;
 }
-
-function resetBoard() {
-	// board = ['undefined' x];
-	board.length = 0;
-	board.length = 9;
-}
 // start using socket.io
 io.on('connection', function(socket) {
 	socket.on('room', function(room) {
@@ -134,47 +132,36 @@ io.on('connection', function(socket) {
 			console.log('error message on addPlayerToQue'.yellow);
 		}
 		// emit room status and start game events to client
-		if (getPlayerNoFromQue(socket.id) === 1) {
+		if (getPlayerNoFromQue(socket.id) === 0) {
 			io.to(socket.id).emit('roomStatus', {
-				player: 1,
+				player: 0,
 				status: "wait"
 			});
-		} else if (getPlayerNoFromQue(socket.id) === 2) {
+		} else if (getPlayerNoFromQue(socket.id) === 1) {
 			io.to(socket.id).emit('roomStatus', {
-				player: 2,
+				player: 1,
 				status: "start"
 			});
 			io.to(game).emit('startGame', true);
-			io.to(game).emit('whoseTurn', 1);
+			io.to(game).emit('whoseTurn', 0);
 		}
 	});
 	socket.on('move', function(data) {
 		// assume player 1 goes first
-		if (whoseTurn === 1) {
-			// know that the player is not lying
-			if (getPlayerNoFromQue(socket.id) === 1) {
-				moves += 1;
-				// store player1 values in game board	
-				board[data] = 'X';
+		if (whoseTurn === getPlayerNoFromQue(socket.id)) {
+			if (board[data] === undefined) {
+				// store player1 & 2 values in game board	
+				board[data] = whoseTurn === 0 ? 'X' : 'O';
 				// acknowledge the player's move
-				io.to(game).emit('move-acknowledged', {
-					player: 1,
+				io.to(game).emit('moveAcknowledged', {
+					player: whoseTurn,
 					data: data
 				});
-				io.to(game).emit('whoseTurn', 2);
-				whoseTurn = 2;
-			}
-		} else {
-			if (getPlayerNoFromQue(socket.id) === 2) {
+				whoseTurn = (whoseTurn + 1) % 2;
+				io.to(game).emit('whoseTurn', whoseTurn);
 				moves += 1;
-				// store player1 values in game board
-				board[data] = 'O';
-				io.to(game).emit('move-acknowledged', {
-					player: 2,
-					data: data
-				});
-				io.to(game).emit('whoseTurn', 1);
-				whoseTurn = 1;
+			} else {
+				io.to(game).emit('invalidMove', whoseTurn);
 			}
 		}
 		// decide if game has been won
@@ -182,9 +169,9 @@ io.on('connection', function(socket) {
 		for (var i = 0; i < len; i += 1) {
 			if (board[WIN_COMBO[i][0]] === board[WIN_COMBO[i][1]] && board[WIN_COMBO[i][1]] === board[WIN_COMBO[i][2]] && board[WIN_COMBO[i][1]] !== undefined) {
 				if (board[WIN_COMBO[i][1]] === 'X') {
-					io.to(game).emit('winStatus', 1);
+					io.to(game).emit('winStatus', 0);
 				} else {
-					io.to(game).emit('winStatus', 2);
+					io.to(game).emit('winStatus', 1);
 				}
 				won = true;
 			}

@@ -24,38 +24,42 @@ Author: Khalid Omar Ali
     // receive from server room status and add players
     socket.on('roomStatus', function(data) {
         player = data.player;
-        if (player === 1) {
+        if (player === 0) {
             statusUpdate('Share URL:  192.168.33.10:3000/tictactoe/' + room);
-        } else if (player === 2) {
+        } else if (player === 1) {
             addPlayer2('Player 2');
         }
     });
     // receive from the server that the game can now start 
     // and show clients that is it player1 turn
-    socket.on('startGame', function(data) {
-        console.log('what is in the startGame data ' + data);
-        startGame = data;
-        if (startGame === true) {
+    socket.on('startGame', function(startGame) {
+        console.log('what is in the startGame data ' + startGame);
+        if (startGame) {
             // player 1 always goes first
             statusUpdate("Player1's turn");
         }
     });
     // receive whoseTurn event from server and implement appropriate UI
-    socket.on('whoseTurn', function(data) {
-        console.log('whoseTurn data ' + data);
+    socket.on('whoseTurn', function(whoseTurn) {
+        console.log('whoseTurn data ' + whoseTurn);
         var turnStatus;
-        whoseTurn = data;
+        var humanTurn = whoseTurn + 1;
         if (whoseTurn === player) {
             turnStatus = 'Your Turn';
         } else {
-            turnStatus = 'It is player' + whoseTurn + ' s turn';
+            turnStatus = 'It is Player' + humanTurn + ' s turn';
         }
         statusUpdate(turnStatus);
     });
+    // listen for invalid moves
+    socket.on('invalidMove', function(whoseTurn) {
+        if (whoseTurn === player) {
+            statusUpdate('Invalid move, try again!');
+        }
+    });
     // listen for move-acknowledged event and draw moves on board
-    socket.on('move-acknowledged', function(data) {
-        var response = data;
-        if (response.player === 1) {
+    socket.on('moveAcknowledged', function(response) {
+        if (response.player === 0) {
             document.getElementById('btn-' + response.data).innerHTML = "X";
         } else {
             document.getElementById('btn-' + response.data).innerHTML = "O";

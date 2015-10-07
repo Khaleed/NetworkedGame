@@ -149,20 +149,20 @@ io.on('connection', function(socket) {
 	socket.on('move', function(data) {
 		// assume player 1 goes first
 		if (whoseTurn === getPlayerNoFromQue(socket.id)) {
-			if (board[data] === undefined) {
-				// store player1 & 2 values in game board	
-				board[data] = whoseTurn === 0 ? 'X' : 'O';
-				// acknowledge the player's move
-				io.to(game).emit('moveAcknowledged', {
-					player: whoseTurn,
-					data: data
-				});
-				whoseTurn = (whoseTurn + 1) % 2;
-				io.to(game).emit('whoseTurn', whoseTurn);
-				moves += 1;
-			} else {
-				io.to(game).emit('invalidMove', whoseTurn);
-			}
+			// if (board[data] === undefined) {
+			// store player1 & 2 values in game board	
+			board[data] = whoseTurn === 0 ? 'X' : 'O';
+			// acknowledge the player's move
+			io.to(game).emit('moveAcknowledged', {
+				player: whoseTurn,
+				data: data
+			});
+			whoseTurn = (whoseTurn + 1) % 2;
+			io.to(game).emit('whoseTurn', whoseTurn);
+			moves += 1;
+			// } else {
+			// 	io.to(game).emit('invalidMove', whoseTurn);	
+			// }
 		}
 		// decide if game has been won
 		var len = WIN_COMBO.length;

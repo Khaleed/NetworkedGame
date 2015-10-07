@@ -17,7 +17,7 @@ GAME STATE:
 When a player clicks, the client emits position of move to the server
 Server updates state of each character in the 'world' and 
 replies back with a packet containing the state of the 
-character of a player and the client simply ties. 
+character of a player and the client simply draws. 
 Clients simply incorporate the updates from server.
 Clients really only know how to update UI
 
@@ -43,26 +43,9 @@ var port = process.env.port || 3000;
 var randomString = require('randomstring');
 // use colors for debugging
 var colors = require('colors');
-// global game variables
-var playerQue = [];
-var MAX_PLAYERS = 2;
-var board = new Array(9);
-var WIN_COMBO = [
-	[0, 1, 2],
-	[3, 4, 5],
-	[6, 7, 8],
-	[0, 3, 6],
-	[1, 4, 7],
-	[2, 5, 8],
-	[0, 4, 8],
-	[2, 4, 6]
-];
-var whoseTurn = 0;
-// states
-var won = false;
-var tie = false;
-var moves = 0;
-var game;
+
+var GameState = require('./gamestate'),
+	gamestate = new GameState();
 // routes - when a get request is made
 app.get('/', function(req, res) {
 	// redirect client to game room (using dynamic routing)
@@ -75,133 +58,86 @@ app.get('/tictactoe/:id', function(req, res) {
 });
 // static route - middleware to handle requests to static files
 app.use('/public', express.static('public'));
-// helper functions
-function resetBoard() {
-	board = new Array(9);
-}
 
-function getPlayerNoFromQue(id) {
-	if (typeof id === "undefined") {
-		console.log("id undefined in getPlayerNoFromQue fn");
-		return false;
-	}
-	var index = playerQue.indexOf(id);
-	if (index === -1) {
-		console.log("negative index in getPlayerNoFromQue fn");
-		return false;
-	}
-	return index;
-}
-
-function addPlayerToQue(id) {
-	// defensive check
-	if (typeof id === "undefined") {
-		console.log("id undefined in addPlayerToQue fn");
-		return false;
-	}
-	// fail quick test
-	if (playerQue.length === MAX_PLAYERS) {
-		console.log("playerQue length equal to MAX_PLAYERS in addPlayerToQue fn");
-		return false;
-	}
-	playerQue.push(id);
-	return true;
-}
-
-function deletePlayerFromQue(id) {
-	if (typeof id === "undefined") {
-		console.log("id undefined in deletePlayerFromQue fn");
-		return false;
-	}
-	if (playerQue.length === 0) {
-		console.log("playerQue length equal to 0 in playerQue fn");
-		return false;
-	}
-	var index = playerQue.indexOf(id);
-	playerQue.splice(index, 1);
-	return true;
-}
-
-function isMoveValid(board, pos) {
-	console.log('board: ',board,'pos: ',pos,' === ',board[pos] === undefined);
-	return board[pos] === undefined;
-}
 // start using socket.io
 io.on('connection', function(socket) {
 	socket.on('room', function(room) {
-		game = room;
-		socket.join(game);
-		
-		if (!addPlayerToQue(socket.id)) {
-			// already 2 players; game full; return
+		gamestate.game = room;
+		socket.join(gamestate.game);
+		if (!gamestate.addPlayerToQue(socket.id)) {
+			// already 2 players; gamestate.game full; return
 		}
-		// emit room status and start game events to client
-		if (getPlayerNoFromQue(socket.id) === 0) {
+		// emit room status and start gamestate.game events to client
+		if (gamestate.getPlayerNoFromQue(socket.id) === 0) {
 			io.to(socket.id).emit('roomStatus', {
 				player: 0,
 				status: "wait"
 			});
-		} else if (getPlayerNoFromQue(socket.id) === 1) {
+		} else if (gamestate.getPlayerNoFromQue(socket.id) === 1) {
 			io.to(socket.id).emit('roomStatus', {
 				player: 1,
 				status: "start"
 			});
-			io.to(game).emit('startGame', true);
-			io.to(game).emit('whoseTurn', 0);
+			io.to(gamestate.game).emit('startGame', true);
+			io.to(gamestate.game).emit('whoseTurn', 0);
 		}
 	});
 	socket.on('move', function(data) {
 		// assume player 1 goes first
 		console.log('move event data1: ' + data);
-		if (whoseTurn === getPlayerNoFromQue(socket.id)) {
+		if (gamestate.whoseTurn === gamestate.getPlayerNoFromQue(socket.id)) {
 			console.log('move event data2: ' + data);
-			if (isMoveValid(board, data)) {
+			if (gamestate.isMoveValid(data)) {
 				console.log('move event data3: ' + data);
-				// store player1 & 2 values in game board	
-				board[data] = whoseTurn === 0 ? 'X' : 'O';
+				// store player1 & 2 values in gamestate.game board	
+				gamestate.board[data] = gamestate.whoseTurn === 0 ? 'X' : 'O';
 				// acknowledge the player's move
-				io.to(game).emit('moveAcknowledged', {
-					player: whoseTurn,
+				io.to(gamestate.game).emit('moveAcknowledged', {
+					player: gamestate.whoseTurn,
 					data: data
 				});
-				whoseTurn = (whoseTurn + 1) % 2;
-				io.to(game).emit('whoseTurn', whoseTurn);
-				moves += 1;
+				gamestate.whoseTurn = (gamestate.whoseTurn + 1) % 2;
+				io.to(gamestate.game).emit('whoseTurn', gamestate.whoseTurn);
+				gamestate.moves += 1;
 			} else {
-				io.to(game).emit('invalidMove', whoseTurn);
+				io.to(gamestate.game).emit('invalidMove', gamestate.whoseTurn);
 			}
 		}
-		// decide if game has been won
-		var len = WIN_COMBO.length;
+		// decide if gamestate.game has been gamestate.won
+		var len = gamestate.WIN_COMBO.length;
 		for (var i = 0; i < len; i += 1) {
-			if (board[WIN_COMBO[i][0]] === board[WIN_COMBO[i][1]] && board[WIN_COMBO[i][1]] === board[WIN_COMBO[i][2]] && board[WIN_COMBO[i][1]] !== undefined) {
-				if (board[WIN_COMBO[i][1]] === 'X') {
-					io.to(game).emit('winStatus', 0);
+			var board = gamestate.board;
+			var	winPos = gamestate.WIN_COMBO[i];
+			if (board[winPos[0]] === board[winPos[1]]
+				&& board[winPos[1]] === board[winPos[2]]
+				&& board[winPos[1]] !== undefined) {
+				if (board[winPos[1]] === 'X') {
+					io.to(gamestate.game).emit('winStatus', 0);
 				} else {
-					io.to(game).emit('winStatus', 1);
+					io.to(gamestate.game).emit('winStatus', 1);
 				}
-				won = true;
+				gamestate.won = true;
 			}
 		}
-		if (moves >= 9 && won === false) {
-			io.to(game).emit('winStatus', 'tie');
-			tie = true;
+		if (gamestate.moves >= 9 && gamestate.won === false) {
+			io.to(gamestate.game).emit('winStatus', 'tie');
+			gamestate.tie = true;
 		}
 	});
-	// listen for restart from client and reset the game
+	// listen for restart from client and reset the gamestate.game
 	socket.on('restart', function() {
-		if (won === true || tie === true) {
-			io.to(game).emit('resetGame');
-			won = false;
-			resetBoard();
-			tie = false;
-			moves = 0;
-			whoseTurn = 0;
+		if (gamestate.won === true || gamestate.tie === true) {
+			io.to(gamestate.game).emit('resetGame');
+			gamestate.won = false;
+			gamestate.resetBoard();
+			gamestate.tie = false;
+			gamestate.moves = 0;
+			gamestate.whoseTurn = 0;
 		}
 	});
 	socket.on('disconnection', function() {
-		// player leaves the game
-		socket.leave(game);
+		// player leaves the gamestate.game
+		socket.leave(gamestate.game);
 		deletePlayerFromQue(socket.id);
 		console.log('socket ' + socket.id + ' deleted ' + deletePlayerFromQue(socket.id));
 	});

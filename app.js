@@ -167,6 +167,7 @@ io.on('connection', function(socket) {
 				});
 				whoseTurn = (whoseTurn + 1) % 2;
 				io.to(game).emit('whoseTurn', whoseTurn);
+				moves += 1;
 			} else {
 				io.to(game).emit('invalidMove', whoseTurn);
 			}

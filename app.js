@@ -113,7 +113,7 @@ function deletePlayerFromQue(id) {
 		console.log("id undefined in deletePlayerFromQue fn");
 		return false;
 	}
-	if (playerQue.length > 0) {
+	if (playerQue.length === 0) {
 		console.log("playerQue length equal to 0 in playerQue fn");
 		return false;
 	}
@@ -131,10 +131,9 @@ io.on('connection', function(socket) {
 	socket.on('room', function(room) {
 		game = room;
 		socket.join(game);
-		if (addPlayerToQue(socket.id)) {
-			console.log('adding player to que with socket id '.yellow);
-		} else {
-			console.log('error message on addPlayerToQue'.yellow);
+		
+		if (!addPlayerToQue(socket.id)) {
+			// already 2 players; game full; return
 		}
 		// emit room status and start game events to client
 		if (getPlayerNoFromQue(socket.id) === 0) {

@@ -15,6 +15,7 @@ Author: Khalid Omar Ali
         startGame;
     // elements
     var boardElem = document.getElementById('game-board'),
+        resetElem = document.getElementById('restart'),
         squareElem = document.getElementsByClassName('square');
     // emit room event to server
     socket.once('connect', function() {
@@ -68,10 +69,9 @@ Author: Khalid Omar Ali
             statusUpdate('Player ' + data + ' won');
         }
     });
-    socket.on('resetGame', function(board) {
-        for (var i = 0, len = board.length; i < len; i += 1) {
-            squareElem[i].innerHTML = "";
-        }
+    socket.on('resetGame', function() {
+        console.log('clearing the board');
+        clearBoard();
     });
     // playMove on the board
     function playMove(sqElem) {
@@ -80,10 +80,27 @@ Author: Khalid Omar Ali
         // emit move event to server with position of the board
         socket.emit('move', sqPos);
     }
+
+    function resetGame() {
+        socket.emit('restart');
+    }
+    // helper function to clean the board
+    function clearBoard() {
+        for (var i = 0, len = squareElem.length; i < len; i += 1) {
+            squareElem[i].innerHTML = "";
+        }
+    }
     // game board event handler
     boardElem.addEventListener('click', function(e) {
         if (e.target.classList.contains('square')) {
             playMove(e.target);
+        }
+    });
+    // resetGame event handler
+    resetElem.addEventListener('click', function(e) {
+        if (e.target.id === 'restart') {
+            console.log('sending restart game request');
+            resetGame(e.target);
         }
     });
     // UI helper functions

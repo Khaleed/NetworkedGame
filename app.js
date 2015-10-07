@@ -117,6 +117,12 @@ function deletePlayerFromQue(id) {
 	playerQue.splice(index, 1);
 	return true;
 }
+
+function resetBoard() {
+	// board = ['undefined' x];
+	board.length = 0;
+	board.length = 9;
+}
 // start using socket.io
 io.on('connection', function(socket) {
 	socket.on('room', function(room) {
@@ -177,32 +183,33 @@ io.on('connection', function(socket) {
 			if (board[WIN_COMBO[i][0]] === board[WIN_COMBO[i][1]] && board[WIN_COMBO[i][1]] === board[WIN_COMBO[i][2]] && board[WIN_COMBO[i][1]] !== undefined) {
 				if (board[WIN_COMBO[i][1]] === 'X') {
 					io.to(game).emit('winStatus', 1);
-					board = [];
-					setTimeout(function() {
-						io.to(game).emit('resetGame', board);
-					}, 2000);
 				} else {
 					io.to(game).emit('winStatus', 2);
-					board = [];
-					setTimeout(function() {
-						io.to(game).emit('resetGame', board);
-					}, 2000);
 				}
 				won = true;
 			}
 		}
 		if (moves >= 9 && won === false) {
 			io.to(game).emit('winStatus', 'draw');
-			board = [];
-			setTimeout(function() {
-				io.to(game).emit('resetGame', board);
-			}, 2000);
+			draw = true;
+		}
+	});
+	// listen for restart from client and reset the game
+	socket.on('restart', function() {
+		console.log('is game won ' + won);
+		console.log('is game drawn ' + draw);
+		if (won === true || draw === true) {
+			io.to(game).emit('resetGame');
+			won = false;
+			resetBoard();
+			draw = false;
 		}
 	});
 	socket.on('disconnection', function() {
 		// player leaves the game
 		socket.leave(game);
 		deletePlayerFromQue(socket.id);
+		console.log('socket ' + socket.id + ' deleted ' + deletePlayerFromQue(socket.id));
 	});
 });
 server.listen(port, function() {

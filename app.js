@@ -46,7 +46,7 @@ var colors = require('colors');
 // global game variables
 var playerQue = [];
 var MAX_PLAYERS = 2;
-var board = Array(9);
+var board = new Array(9);
 var WIN_COMBO = [
 	[0, 1, 2],
 	[3, 4, 5],
@@ -77,7 +77,7 @@ app.get('/tictactoe/:id', function(req, res) {
 app.use('/public', express.static('public'));
 // helper functions
 function resetBoard(board) {
-	board = Array(9);
+	board = new Array(9);
 }
 
 function getPlayerNoFromQue(id) {
@@ -121,6 +121,10 @@ function deletePlayerFromQue(id) {
 	playerQue.splice(index, 1);
 	return true;
 }
+
+function isMoveValid(board, pos) {
+	return board[pos] === undefined;
+}
 // start using socket.io
 io.on('connection', function(socket) {
 	socket.on('room', function(room) {
@@ -149,20 +153,19 @@ io.on('connection', function(socket) {
 	socket.on('move', function(data) {
 		// assume player 1 goes first
 		if (whoseTurn === getPlayerNoFromQue(socket.id)) {
-			// if (board[data] === undefined) {
-			// store player1 & 2 values in game board	
-			board[data] = whoseTurn === 0 ? 'X' : 'O';
-			// acknowledge the player's move
-			io.to(game).emit('moveAcknowledged', {
-				player: whoseTurn,
-				data: data
-			});
-			whoseTurn = (whoseTurn + 1) % 2;
-			io.to(game).emit('whoseTurn', whoseTurn);
-			moves += 1;
-			// } else {
-			// 	io.to(game).emit('invalidMove', whoseTurn);	
-			// }
+			if (isMoveValid(board, data)) {
+				// store player1 & 2 values in game board	
+				board[data] = whoseTurn === 0 ? 'X' : 'O';
+				// acknowledge the player's move
+				io.to(game).emit('moveAcknowledged', {
+					player: whoseTurn,
+					data: data
+				});
+				whoseTurn = (whoseTurn + 1) % 2;
+				io.to(game).emit('whoseTurn', whoseTurn);
+			} else {
+				io.to(game).emit('invalidMove', whoseTurn);
+			}
 		}
 		// decide if game has been won
 		var len = WIN_COMBO.length;

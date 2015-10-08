@@ -65,7 +65,7 @@ io.on('connection', function(socket) {
 		gamestate.game = room;
 		socket.join(gamestate.game);
 		if (!gamestate.addPlayerToQue(socket.id)) {
-			console.log("already 2 players; gamestate.game full; return from it");
+			console.log("already 2 players; gamestate.game full; return");
 		}
 		// emit room status and start gamestate.game events to client
 		if (gamestate.getPlayerNoFromQue(socket.id) === 0) {
@@ -131,7 +131,7 @@ io.on('connection', function(socket) {
 		}
 	});
 	socket.on('disconnect', function() {
-		// delete the player that leaves the game
+		// player leaves the gamestate.game
 		gamestate.deletePlayerFromQue(socket.id);
 	});
 });

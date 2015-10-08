@@ -65,7 +65,7 @@ io.on('connection', function(socket) {
 		gamestate.game = room;
 		socket.join(gamestate.game);
 		if (!gamestate.addPlayerToQue(socket.id)) {
-			// already 2 players; gamestate.game full; return
+			console.log("already 2 players; gamestate.game full; return from it");
 		}
 		// emit room status and start gamestate.game events to client
 		if (gamestate.getPlayerNoFromQue(socket.id) === 0) {
@@ -84,11 +84,8 @@ io.on('connection', function(socket) {
 	});
 	socket.on('move', function(data) {
 		// assume player 1 goes first
-		console.log('move event data1: ' + data);
 		if (gamestate.whoseTurn === gamestate.getPlayerNoFromQue(socket.id)) {
-			console.log('move event data2: ' + data);
 			if (gamestate.isMoveValid(data)) {
-				console.log('move event data3: ' + data);
 				// store player1 & 2 values in gamestate.game board	
 				gamestate.board[data] = gamestate.whoseTurn === 0 ? 'X' : 'O';
 				// acknowledge the player's move
@@ -134,7 +131,7 @@ io.on('connection', function(socket) {
 		}
 	});
 	socket.on('disconnect', function() {
-		// player leaves the gamestate.game
+		// delete the player that leaves the game
 		gamestate.deletePlayerFromQue(socket.id);
 	});
 });

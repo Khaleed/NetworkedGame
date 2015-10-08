@@ -29,7 +29,7 @@ function GameState() {
 
 	self.resetBoard = function() {
 		self.board = new Array(9);
-	}
+	};
 
 	self.getPlayerNoFromQue = function(id) {
 		if (typeof id === "undefined") {
@@ -42,7 +42,7 @@ function GameState() {
 			return false;
 		}
 		return index;
-	}
+	};
 
 	self.addPlayerToQue = function(id) {
 		// defensive check
@@ -57,7 +57,7 @@ function GameState() {
 		}
 		playerQue.push(id);
 		return true;
-	}
+	};
 
 	self.deletePlayerFromQue = function(id) {
 		if (typeof id === "undefined") {
@@ -76,8 +76,8 @@ function GameState() {
 	self.isMoveValid = function(pos) {
 		console.log('board: ', self.board, 'pos: ', pos, ' === ', self.board[pos] === undefined);
 		return self.board[pos] === undefined;
-	}
+	};
 
-};
+}
 
 module.exports = GameState;

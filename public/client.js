@@ -33,7 +33,6 @@ Author: Khalid Omar Ali
     // receive from the server that the game can now start 
     // and show clients that is it player1 turn
     socket.on('startGame', function(startGame) {
-        console.log('what is in the startGame data ' + startGame);
         if (startGame) {
             // player 1 always goes first
             statusUpdate("Player1's turn");
@@ -47,7 +46,7 @@ Author: Khalid Omar Ali
         if (whoseTurn === player) {
             turnStatus = 'Your Turn';
         } else {
-            turnStatus = 'It is Player' + humanTurn + ' s turn';
+            turnStatus = 'It is Player' + humanTurn + "'s turn";
         }
         statusUpdate(turnStatus);
     });
@@ -66,15 +65,14 @@ Author: Khalid Omar Ali
         }
     });
     socket.on('winStatus', function(data) {
-        console.log('winStatus is ' + data);
+        var humanWin = data + 1; 
         if (data === 'draw') {
             statusUpdate("Draw - Cat's game!");
         } else {
-            statusUpdate('Player ' + data + ' won');
+            statusUpdate('Player ' + humanWin + ' won');
         }
     });
     socket.on('resetGame', function() {
-        console.log('clearing the board');
         clearBoard();
     });
     // playMove on the board
@@ -88,13 +86,13 @@ Author: Khalid Omar Ali
     function resetGame() {
         socket.emit('restart');
     }
-    // helper function to clean the board
+    // helper function to clear the board
     function clearBoard() {
         for (var i = 0, len = squareElem.length; i < len; i += 1) {
             squareElem[i].innerHTML = "";
         }
     }
-    // game board event handler
+    // board event handler
     boardElem.addEventListener('click', function(e) {
         if (e.target.classList.contains('square')) {
             playMove(e.target);
@@ -103,7 +101,6 @@ Author: Khalid Omar Ali
     // resetGame event handler
     resetElem.addEventListener('click', function(e) {
         if (e.target.id === 'restart') {
-            console.log('sending restart game request');
             resetGame(e.target);
         }
     });

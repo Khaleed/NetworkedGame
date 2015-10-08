@@ -1,6 +1,6 @@
 /*
 
-Server Side JavaScript for TicTacToe
+Server Side JavaScript for Networked TicTacToe
 Author: Khalid Omar Ali
 
 CLIENT/SERVER MODEL:

@@ -1,5 +1,5 @@
 /*
-Client-Side JavaScript for Multi-PLayer TicTacToe
+Client-Side JavaScript for Networked TicTacToe
 Author: Khalid Omar Ali
 */
 

@@ -1,4 +1,9 @@
-function GameState () {
+/*
+Server-Side Game State JavaScript for Networked TicTacToe
+Author: Khalid Omar Ali
+*/
+
+function GameState() {
 	var self = this;
 
 	self.board = new Array(9);
@@ -22,11 +27,11 @@ function GameState () {
 
 	var playerQue = [];
 
-	self.resetBoard = function () {
+	self.resetBoard = function() {
 		self.board = new Array(9);
 	}
 
-	self.getPlayerNoFromQue = function (id) {
+	self.getPlayerNoFromQue = function(id) {
 		if (typeof id === "undefined") {
 			console.log("id undefined in getPlayerNoFromQue fn");
 			return false;
@@ -39,7 +44,7 @@ function GameState () {
 		return index;
 	}
 
-	self.addPlayerToQue = function (id) {
+	self.addPlayerToQue = function(id) {
 		// defensive check
 		if (typeof id === "undefined") {
 			console.log("id undefined in addPlayerToQue fn");
@@ -54,7 +59,7 @@ function GameState () {
 		return true;
 	}
 
-	self.deletePlayerFromQue = function (id) {
+	self.deletePlayerFromQue = function(id) {
 		if (typeof id === "undefined") {
 			console.log("id undefined in deletePlayerFromQue fn");
 			return false;
@@ -66,14 +71,13 @@ function GameState () {
 		var index = playerQue.indexOf(id);
 		playerQue.splice(index, 1);
 		return true;
-	}
+	};
 
-	self.isMoveValid = function (pos) {
-		console.log('board: ',self.board,'pos: ',pos,' === ',self.board[pos] === undefined);
+	self.isMoveValid = function(pos) {
+		console.log('board: ', self.board, 'pos: ', pos, ' === ', self.board[pos] === undefined);
 		return self.board[pos] === undefined;
 	}
 
-}
-
+};
 
 module.exports = GameState;

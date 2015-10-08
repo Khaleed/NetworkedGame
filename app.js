@@ -107,10 +107,8 @@ io.on('connection', function(socket) {
 		var len = gamestate.WIN_COMBO.length;
 		for (var i = 0; i < len; i += 1) {
 			var board = gamestate.board;
-			var	winPos = gamestate.WIN_COMBO[i];
-			if (board[winPos[0]] === board[winPos[1]]
-				&& board[winPos[1]] === board[winPos[2]]
-				&& board[winPos[1]] !== undefined) {
+			var winPos = gamestate.WIN_COMBO[i];
+			if (board[winPos[0]] === board[winPos[1]] && board[winPos[1]] === board[winPos[2]] && board[winPos[1]] !== undefined) {
 				if (board[winPos[1]] === 'X') {
 					io.to(gamestate.game).emit('winStatus', 0);
 				} else {
@@ -135,11 +133,9 @@ io.on('connection', function(socket) {
 			gamestate.whoseTurn = 0;
 		}
 	});
-	socket.on('disconnection', function() {
+	socket.on('disconnect', function() {
 		// player leaves the gamestate.game
-		socket.leave(gamestate.game);
-		deletePlayerFromQue(socket.id);
-		console.log('socket ' + socket.id + ' deleted ' + deletePlayerFromQue(socket.id));
+		gamestate.deletePlayerFromQue(socket.id);
 	});
 });
 server.listen(port, function() {

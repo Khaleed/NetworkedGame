@@ -31,7 +31,6 @@ Author: Khalid Omar Ali
         }
     });
     // receive from the server that the game can now start 
-    // and show clients that is it player1 turn
     socket.on('startGame', function(startGame) {
         if (startGame) {
             // player 1 always goes first

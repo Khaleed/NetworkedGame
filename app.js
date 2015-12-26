@@ -30,7 +30,6 @@ about Game Networking
 'use strict';
 
 var express = require('express');
-// invoke express
 var app = express();
 // create a HTTP server
 var server = require('http').Server(app);
@@ -65,9 +64,9 @@ io.on('connection', function(socket) {
 		gamestate.game = room;
 		socket.join(gamestate.game);
 		if (!gamestate.addPlayerToQue(socket.id)) {
-			console.log("already 2 players; gamestate.game full; return");
+			console.log("current game is full");
 		}
-		// emit room status and start gamestate.game events to client
+		// emit room status and start emitting events to clients
 		if (gamestate.getPlayerNoFromQue(socket.id) === 0) {
 			io.to(socket.id).emit('roomStatus', {
 				player: 0,
@@ -86,9 +85,9 @@ io.on('connection', function(socket) {
 		// assume player 1 goes first
 		if (gamestate.whoseTurn === gamestate.getPlayerNoFromQue(socket.id)) {
 			if (gamestate.isMoveValid(data)) {
-				// store player1 & 2 values in gamestate.game board	
+				// store player1 & 2 values in the game board	
 				gamestate.board[data] = gamestate.whoseTurn === 0 ? 'X' : 'O';
-				// acknowledge the player's move
+				// acknowledge a player's move
 				io.to(gamestate.game).emit('moveAcknowledged', {
 					player: gamestate.whoseTurn,
 					data: data
@@ -100,7 +99,7 @@ io.on('connection', function(socket) {
 				io.to(gamestate.game).emit('invalidMove', gamestate.whoseTurn);
 			}
 		}
-		// decide if gamestate.game has been gamestate.won
+		// decide if game has been won
 		var len = gamestate.WIN_COMBO.length;
 		for (var i = 0; i < len; i += 1) {
 			var board = gamestate.board;
@@ -119,7 +118,7 @@ io.on('connection', function(socket) {
 			gamestate.tie = true;
 		}
 	});
-	// listen for restart from client and reset the gamestate.game
+	// listen for restart from client and reset game
 	socket.on('restart', function() {
 		if (gamestate.won === true || gamestate.tie === true) {
 			io.to(gamestate.game).emit('resetGame');
@@ -131,7 +130,7 @@ io.on('connection', function(socket) {
 		}
 	});
 	socket.on('disconnect', function() {
-		// player leaves the gamestate.game
+		// player leaves the game
 		gamestate.deletePlayerFromQue(socket.id);
 	});
 });

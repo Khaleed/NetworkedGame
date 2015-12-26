@@ -8,7 +8,7 @@ Author: Khalid Omar Ali
     'use strict';
 
     // states
-    var socket = io.connect('http://192.168.33.10:3000/'),
+    var socket = io.connect('http://localhost:3000/'),
         room = window.location.pathname.split('/').pop(),
         player,
         whoseTurn,
@@ -25,7 +25,7 @@ Author: Khalid Omar Ali
     socket.on('roomStatus', function(data) {
         player = data.player;
         if (player === 0) {
-            statusUpdate('Share URL:  192.168.33.10:3000/tictactoe/' + room);
+            statusUpdate('Share URL:  http://localhost:3000/tictactoe/' + room);
         } else if (player === 1) {
             addPlayer2('Player 2');
         }

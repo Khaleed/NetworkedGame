@@ -1,5 +1,4 @@
-Networked Tic-Tac-Toe
-=====================
+# Networked Tic-Tac-Toe
 
 ## Technology
 
